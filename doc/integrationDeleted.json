@@ -1,0 +1,12 @@
+{
+  "headers": {
+    "schema": "st-schema",
+    "version": "1.0",
+    "interactionType": "integrationDeleted",
+    "requestId": "9ab7f969-6ad6-47ef-8be4-aebfa2362f35"
+  },
+  "authentication": {
+    "tokenType": "Bearer",
+    "token": "i92qgnljKqLiiorGOq04rEPW"
+  }
+}

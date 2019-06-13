@@ -1,0 +1,37 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <title>Mock Google OAuth2 (and maybe other services)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-3"></div>
+    <div class="col-lg-6">
+
+      <h3>Virtual Device Manager</h3>
+
+      <% if (errorMessage) { %>
+      <p class="errorMessage"><%= errorMessage %></p>
+      <% } %>
+
+      <form action="/login-as" method="POST">
+        <div class="form-group">
+          <label for="email">Email: </label>
+          <input type="email" class="form-control" name="email" id="email"/>
+        </div>
+        <div class="form-group">
+          <label for="password">Password: </label>
+          <input type="password" name="password" id="password" class="form-control"/>
+        </div>
+        <input class="btn btn-primary" type="submit" name="signin" value="Sign In & Authorize"/>
+        <input class="btn btn-info" type="submit" name="register" value="Create New Account"/>
+      </form>
+    </div>
+    <div class="col-lg-3"></div>
+  </div>
+</div>
+</body>
+</html>

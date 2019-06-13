@@ -1,0 +1,28 @@
+{
+  "headers": {
+    "schema": "st-schema",
+    "version": "1.0",
+    "interactionType": "commandRequest",
+    "requestId": "8d8852ea-46f9-a8f6-81c2-0de65ddf4456"
+  },
+  "authentication": {
+    "tokenType": "Bearer",
+    "token": "Kujj3lrH45wOoSlVXItRkTz1"
+  },
+  "devices": [
+    {
+      "externalDeviceId": "089cca18-5a91-4b60-b93f-31092be8408f",
+      "deviceCookie": {},
+      "commands": [
+        {
+          "component": "main",
+          "capability": "st.switchLevel",
+          "command": "setLevel",
+          "arguments": [
+            56
+          ]
+        }
+      ]
+    }
+  ]
+}

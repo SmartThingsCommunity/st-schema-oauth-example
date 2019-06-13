@@ -1,0 +1,110 @@
+body {
+  font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.errorMessage {
+  color: darkred;
+}
+
+div.container-fluid {
+    max-width: 600px;
+}
+.deviceTile {
+  border-width: 1px;
+  padding: 7px;
+  margin: 5px 0 10px 0;
+  background-color: #85d4ff;
+  height: 64px;
+  vertical-align: middle;
+  border-radius: 10px;
+  display: table;
+  width: 100%;
+}
+
+.displayName {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin: 0 88px 0 10px;
+  cursor: pointer;
+}
+
+.deviceControl {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  float: right;
+  width: 80px;
+  text-transform: uppercase;
+  border-radius: 10px;
+}
+
+.deviceDelete {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    float: left;
+    margin-left: -2px;
+}
+.deviceStatus {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.on, .active, .open {
+  background-color: #3291ff;
+  color: #ffffff;
+}
+
+.off, .inactive, .closed {
+  background-color: #32d0ff;
+  color: #ffffff;
+}
+
+.processing {
+    background-image: url("/images/spinner.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+input.oauth {
+  width: 49%;
+  height: 50px;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+    float: right;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+h3 {
+    margin: 20px 0 20px 0px;
+}
+
+#dropdownMenu {
+}
+
+#dropdownMenuButton {
+    margin-top: 20px;
+}
+
+input.number-control {
+    width: 100%;
+    display: inline-block;
+    height: 2.25em;
+}

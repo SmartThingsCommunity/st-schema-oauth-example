@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "schema": "st-schema",
+    "version": "1.0",
+    "interactionType": "stateRefreshRequest",
+    "requestId": "4012D415-ED04-4D8B-A22F-395FB1732511"
+  },
+  "authentication": {
+    "tokenType": "Bearer",
+    "token": "ACCT-ugZTXg"
+  },
+  "devices": [
+    {
+      "externalDeviceId": "de16088d-2341-4fa1-b5f7-b3c759c29c4e",
+      "deviceCookie": {}
+    }
+  ]
+}

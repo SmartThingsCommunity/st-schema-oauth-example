@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<h1><%= title %></h1>
+<p>
+  This applicatation consistens of an example ST schema connector as well as an OAuth implementation to support
+  connection to the SmartThings platform.
+</p>
+
+<p>
+  The connector configuration data is:
+</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Target URL</td>
+      <td><%= targetURL %></td>
+    </tr>
+    <tr>
+      <td>Client ID</td>
+      <td><%= clientId %></td>
+    </tr>
+    <tr>
+      <td>Client Secret</td>
+      <td><%= clientSecret %></td>
+    </tr>
+    <tr>
+      <td>Authorization URI</td>
+      <td><%= authorizationUri %></td>
+    </tr>
+    <tr>
+      <td>Refresh Token URL</td>
+      <td><%= refreshTokenUrl %></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  <a href="/login">Sign In</a>
+</p>
+
+<p>
+  <a href="/devices">Devices</a>
+</p>
+</body>
+</html>

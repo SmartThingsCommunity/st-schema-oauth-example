@@ -1,0 +1,12 @@
+{
+  "headers": {
+    "schema": "st-schema",
+    "version": "1.0",
+    "interactionType": "discoveryRequest",
+    "requestId": "b4995c7e-3c74-4abc-9ab1-3ed048719c6a"
+  },
+  "authentication": {
+    "tokenType": "Bearer",
+    "token": "ACCT-0t6DSB"
+  }
+}

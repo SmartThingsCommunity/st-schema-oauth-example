@@ -1,0 +1,14 @@
+{
+  "headers": {
+    "schema": "st-schema",
+    "version": "1.0",
+    "interactionType": "accessTokenResponse",
+    "requestId": "E68C91AB-0ED7-48B2-8FFC-036282FBD607"
+  },
+  "callbackAuthentication": {
+    "tokenType": "Bearer",
+    "accessToken": "eyJhbGciOiJIUzM4NCJ9.MDcyNmRlNDYtNTIzYS00MjlmLWI4MTktODE5NDViODY1MTU1.aLkqFJFmzbrWQNcqsemE_ZHRW8n1Oi1Xrvo_4aB_q7vsUKk03z4rpi-XbyLQ285o",
+    "refreshToken": "eyJhbGciOiJIUzM4NCJ9.ZWQ0YzM1ODQtNjA3My00MWViLTkxZTctNDU3ZWNhZmQ2NThm.IAX_H7mFZMHF2PVguvPxHMU8I2-UqDLmszVTDTKWnLVWD64OKm3pYGXWCcFqbQvZ",
+    "expiresIn": 86400
+  }
+}
