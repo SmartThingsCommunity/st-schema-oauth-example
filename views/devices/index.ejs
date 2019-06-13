@@ -33,112 +33,44 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"></script>
 
-  <script type="text/javascript">
+  <script src="/javascript/property.js"></script>
+  <script src="/javascript/device.js"></script>
+  <script src="/javascript/devicesviewmodel.js"></script>
+  <script src="/javascript/devices.js"></script>
 
-    function capitalize(str) {
-      return str.split().map(it => it.charAt(0).toUpperCase() + it.slice(1))
-    }
-
-    function toggleValue(attribute, value) {
-      if (attribute === 'motion') {
-        return value === 'active' ? 'inactive' : 'active'
-      }
-      else if (attribute === 'contact') {
-        return value === 'open' ? 'closed' : 'open'
-      }
-      else {
-        return value === 'on' ? 'off' : 'on'
-      }
-    }
-
-    function mainAttribute(states) {
-      if (states['switch']) {
-        return 'switch'
-      }
-      else if (states['contact']) {
-        return 'contact'
-      }
-      else if (states['motion']) {
-        return 'motion'
-      }
-      else if (states['temperature']) {
-        return 'temperature'
-      }
-      else {
-        return Object.keys(states)[0]
-      }
-    }
-
-    function controlMetadata(attribute) {
-      if (attribute === 'motion') {
-        return {type: 'enum', values: ['inactive', 'active']}
-      }
-      else if (attribute === 'contact') {
-        return {type: 'enum', values: ['closed', 'open']}
-      }
-      else if (attribute === 'switch') {
-        return {type: 'enum', values: ['off', 'on']}
-      }
-      else if (attribute === 'brightness') {
-        return {type: 'slider', min: 0, max: 100}
-      }
-      else if (attribute === 'colorTemperature') {
-        return {type: 'slider', min: 2400, max: 6800}
-      }
-      else if (attribute === 'hue') {
-        return {type: 'slider', min: 0, max: 360}
-      }
-      else if (attribute === 'saturation') {
-        return {type: 'slider', min: 0, max: 100}
-      }
-      else if (attribute === 'heatingSetpoint') {
-        return {type: 'slider', min: 50, max: 90}
-      }
-      else if (attribute === 'coolingSetpoint') {
-        return {type: 'slider', min: 50, max: 90}
-      }
-      else if (attribute === 'thermostatMode') {
-        return {type: 'enum', values: ['off', 'heat', 'cool', 'auto']}
-      }
-      else if (attribute === 'thermostatFanMode') {
-        return {type: 'enum', values: ['auto', 'on']}
-      }
-      else if (attribute === 'thermostatOperatingState') {
-        return {type: 'enum', values: ['idle', 'heating', 'cooling']}
-      }
-      else if (attribute === 'temperature') {
-        return {type: 'number'}
-      }
-      else {
-        return {type: 'field'}
-      }
-    }
-
-    $( document ).ready(function() {
-
-      $('#addDeviceButton').click(function() {
-        $( "#addDeviceDialog" ).dialog({width: 400, modal: true});
-        return false;
-      });
-
-      $('#cancelAddDeviceDialog').click(function() {
-        $( "#addDeviceDialog" ).dialog('close');
-        return false;
-      });
-
-      $('#deleteDevicesButton').click(function() {
-       $( "#deleteDevicesDialog" ).dialog({width: 400, modal: true});
-        return false;
-      });
-
-      $('#cancelDeleteDevicesDialog').click(function() {
-        $( "#deleteDevicesDialog" ).dialog('close');
-        return false;
-      });
-    })
-  </script>
 </head>
 <body>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+
+      <div class="dropleft" id="dropdownMenu" style="float: right">
+        <button class="btn btn-light" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">...</button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#" id="addDeviceButton">Add Device</a>
+          <a class="dropdown-item" href="#" id="deleteDevicesButton">Delete Devices</a>
+          <a class="dropdown-item" href="/logout">Sign Out</a>
+        </div>
+      </div>
+
+      <h3 data-bind="text: username"></h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-12">
+      <div data-bind="foreach: devices">
+        <div class="deviceTile">
+          <span class="deviceControl" data-bind="click: toggleState, class: tileState">
+            <span class="deviceStatus" data-bind="text: mainState"></span>
+          </span>
+          <a class="displayName" data-bind="text: displayName, attr: {id: externalId}"></a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <div id="addDeviceDialog" title="Add Device" style="display: none;">
   <form action="/devices/create" method="POST">
@@ -213,212 +145,5 @@
   </form>
 </div>
 
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-lg-12">
-
-      <div class="dropleft" id="dropdownMenu" style="float: right">
-        <button class="btn btn-light" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">...</button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#" id="addDeviceButton">Add Device</a>
-          <a class="dropdown-item" href="#" id="deleteDevicesButton">Delete Devices</a>
-          <a class="dropdown-item" href="/logout">Sign Out</a>
-        </div>
-      </div>
-
-      <h3 data-bind="text: username"></h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-lg-12">
-      <div data-bind="foreach: devices">
-        <div class="deviceTile">
-          <span class="deviceControl" data-bind="click: toggleState, class: tileState">
-            <span class="deviceStatus" data-bind="text: mainState"></span>
-          </span>
-          <a class="displayName" data-bind="text: displayName, attr: {id: externalId}"></a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<script type="text/javascript">
-  let viewModel;
-
-  $.get('/devices/viewData', function(viewData) {
-
-    var Property = function(parent, externalId, propertyName, propertyValue) {
-      this.parent = parent;
-      this.externalId = externalId;
-      this.propertyName = propertyName;
-      this.controlMetadata = controlMetadata(propertyName)
-      this.propertyValue = ko.observable(propertyValue);
-
-      this.displayName = ko.pureComputed(function() {
-        return capitalize(this.propertyName)
-      }, this);
-
-      this.isEnumControl = ko.pureComputed(function() {
-        return this.controlMetadata.type === 'enum'
-      }, this);
-
-      this.enumValues = ko.pureComputed(function() {
-        return this.controlMetadata.values.map(it => { return {value: it, label: capitalize(it)} })
-      }, this);
-
-      this.isSliderControl = ko.pureComputed(function() {
-        return this.controlMetadata.type === 'slider'
-      }, this);
-
-      this.sliderMin = ko.pureComputed(function() {
-        return this.controlMetadata.min
-      }, this);
-
-      this.sliderMax = ko.pureComputed(function() {
-        return this.controlMetadata.max
-      }, this);
-
-      this.isFieldControl = ko.pureComputed(function() {
-        return this.controlMetadata.type === 'field'
-      }, this);
-
-      this.isNumberControl = ko.pureComputed(function() {
-        return this.controlMetadata.type === 'number'
-      }, this);
-
-      this.propertyValue.subscribe(function(newValue) {
-        const externalId = this.externalId;
-        const propertyName = this.propertyName;
-        $.ajax({
-          type: "POST",
-          url: '/devices/command',
-          data: JSON.stringify({
-            username: parent.parent.username,
-            externalId: externalId,
-            states: {[propertyName]: newValue}
-          }),
-          success: function (data) {
-
-          },
-          dataType: 'json',
-          contentType: "application/json; charset=utf-8"
-        });
-      }, this);
-    };
-
-    var Device = function (parent, device) {
-      const states = device.states;
-      this.parent = parent;
-      this.externalId = device.externalId;
-      this.displayName = device.displayName;
-      this.mainAttribute = mainAttribute(states);
-      this.mainState = ko.observable(states[mainAttribute(states)]);
-
-      this.allStates = Object.keys(states)
-      .sort( (a, b) => {
-        return a === b ? 0 : (a > b) ? 1 : -1
-      })
-      .map(key => {
-        return new Property(this, this.externalId, key, states[key])
-      });
-
-      this.displayStates = ko.pureComputed(function() {
-        return this.allStates.filter(it => { return it.propertyName !== 'online'})
-      }, this);
-
-      this.tileActive = ko.observable(false);
-      this.tileState = ko.pureComputed(function() {
-        return `${this.tileActive() ? 'processing ' : ''}${this.mainState()}`;
-      }, this);
-
-      this.toggleState = function () {
-        const mainState = this.mainState;
-        const mainAttribute = this.mainAttribute
-        const tileActive = this.tileActive;
-        const value = mainState();
-        const newValue = toggleValue(this.mainAttribute, value);
-
-        tileActive(true);
-
-        $.ajax({
-          type: "POST",
-          url: '/devices/command',
-          data: JSON.stringify({
-            username: parent.username,
-            externalId: this.externalId,
-            states: {[mainAttribute]: newValue}
-          }),
-          success: function (data) {
-            mainState(newValue);
-            tileActive(false)
-          },
-          dataType: 'json',
-          contentType: "application/json; charset=utf-8"
-        });
-      }
-    };
-
-    function ViewModel() {
-      this.username = viewData.username;
-      this.devices = viewData.devices.sort( (a, b) => {
-          return a.displayName === b.displayName ? 0 : (a.displayName > b.displayName) ? 1 : -1
-      })
-      .map(device => {
-            return new Device(this, device)
-      });
-
-      this.selectedDevice = ko.observable();
-
-      this.selectDevice = function(externalId) {
-        const device = this.devices.find(it => { return it.externalId === externalId});
-        if (device) {
-          this.selectedDevice(device);
-        }
-        else {
-          this.selectedDevice(null);
-        }
-      }
-    }
-
-    viewModel = new ViewModel();
-
-    ko.applyBindings(viewModel);
-
-    const eventSource = new EventSource('/devices/stream')
-    eventSource.onmessage = function(e) {
-      console.log(`onmessage: ${e.data}`);
-      for (const device of JSON.parse(e.data)) {
-        const item = viewModel.devices.find(function(it) {
-          return it.externalId === device.externalDeviceId
-        });
-        // TODO - handle all attributes
-        if (item) {
-          const mainState = device.states.find(function(it) {
-            return it.component === 'main' && it.attribute === 'switch'
-          });
-          if (mainState) {
-            item.mainState(mainState.value)
-          }
-        }
-      }
-    };
-
-    $('.displayName').click(function() {
-      console.log('click');
-      const elem = $(this);
-      const externalId = elem.attr('id');
-      console.log('selected ' + externalId);
-      viewModel.selectDevice(externalId);
-      $( "#deviceDetailDialog" ).dialog({width: 400, modal: true});
-      return false;
-    })
-
-    eventSource.onerror = function(e) {
-      console.log('EventSource failed %j', e);
-    };
-  })
-</script>
 </body>
 </html>

@@ -11,7 +11,7 @@ a {
 }
 
 div.container-fluid {
-    max-width: 600px;
+    max-width: 1024px;
 }
 .deviceTile {
   border-width: 1px;
@@ -90,6 +90,10 @@ input.oauth {
 .footer {
   text-align: center;
   margin-top: 20px;
+}
+
+h1 {
+    margin-top: 25px;
 }
 
 h3 {

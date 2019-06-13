@@ -6,7 +6,12 @@ const mapping = require('../lib/mapping');
 
 /* GET home page. */
 router.get('/', async (req, res) => {
-  res.render('devices/index');
+  if (req.session.username) {
+    res.render('devices/index');
+  }
+  else {
+    res.redirect('/login')
+  }
 });
 
 router.get('/viewData', async (req, res) => {
