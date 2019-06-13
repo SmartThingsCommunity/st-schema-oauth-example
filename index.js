@@ -15,7 +15,8 @@ const devicesRouter = require('./routes/devices');
 const oauthRouter = require('./routes/oauth');
 const schemaRouter = require('./routes/schema');
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3000;
+const dynamoSessionTableName = process.env.DYNAMODB_SESSION_TABLE_NAME ? process.env.DYNAMODB_SESSION_TABLE_NAME : 'sts_oauth_example_sessions';
 const app = express();
 
 
@@ -28,7 +29,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-  store: new DynamoDBStore({"table": {"name": "sts_oauth_example_sessions"}}),
+  store: new DynamoDBStore({"table": {"name": dynamoSessionTableName}}),
   secret: "oauth example secret",
   resave: false,
   saveUninitialized: true,
