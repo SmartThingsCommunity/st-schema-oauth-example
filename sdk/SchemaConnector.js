@@ -4,6 +4,7 @@ const DiscoveryResponse = require("./discovery/DiscoveryResponse");
 const StateRefreshResponse = require("./state/StateRefreshResponse");
 const CommandResponse = require("./state/CommandResponse");
 const AccessTokenRequest = require("./callbacks/AccessTokenRequest");
+const StateUpdateRequest = require("./callbacks/StateUpdateRequest");
 
 module.exports = class SchemaConnector {
 
