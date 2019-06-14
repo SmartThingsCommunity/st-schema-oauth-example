@@ -76,14 +76,18 @@
   <form action="/devices/create" method="POST">
     <div class="form-group">
       <label for="deviceType">Device Type: </label>
-      <select name="deviceType" id="deviceType">
+      <select class="custom-select" name="deviceType" id="deviceType">
         <option value="c2c-switch">Switch</option>
         <option value="c2c-dimmer">Dimmer</option>
         <option value="c2c-color-temperature-bulb">Tunable White Bulb</option>
         <option value="c2c-rgb-color-bulb">Full Color Bulb</option>
         <option value="c2c-rgbw-color-bulb">Full Color Tunable White Bulb</option>
         <option value="c2c-motion-2">Motion Sensor</option>
+        <option value="d51dc1d9-d309-4200-ae45-452c91d41d7c">Motion & Temperature Sensor</option>
+        <option value="c2c-motion-5">Motion, Temp & Illuminance Sensor</option>
         <option value="c2c-contact-3">Open/Close Sensor</option>
+        <option value="5e5b9338-4ac5-4b35-a0b3-fb97a6787fa5">Heater</option>
+        <option value="7a004f0c-db94-44d7-b206-c53866a9b745">Air Conditioner</option>
         <option value="f37767e0-496d-4df8-9119-3f68c0646c59">HVAC Thermostat</option>
       </select>
     </div>

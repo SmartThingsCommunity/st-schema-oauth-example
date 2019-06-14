@@ -73,7 +73,7 @@ function controlMetadata(attribute) {
     return {type: 'number'}
   }
   else {
-    return {type: 'field'}
+    return {type: 'number'}
   }
 }
 

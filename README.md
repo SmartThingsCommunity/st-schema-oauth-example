@@ -8,3 +8,17 @@ ST Schema connector.
 The app allows users to create a number of virtual devices including switches,
 dimmers, tunable white bulbs, color bulbs, motions sensors, open/close 
 sensors, and thermostats.
+
+## File Structure
+
+* lib -- Example third party app classes
+* public -- Static web server files
+  * images
+  * javascript
+  * stylesheets
+* routes -- Web application controllers
+  * devices.js 
+  * index.js
+  * oauth
+  * schema
+* views
