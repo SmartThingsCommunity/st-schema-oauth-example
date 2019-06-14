@@ -1,25 +1,30 @@
 'use strict';
 
+const DiscoveryResponse = require("./discovery/DiscoveryResponse");
+const StateRefreshResponse = require("./state/StateRefreshResponse");
+const CommandResponse = require("./state/CommandResponse");
+const AccessTokenRequest = require("./callbacks/AccessTokenRequest");
+
 module.exports = class SchemaConnector {
 
   constructor(options = {}) {
     this._clientId = options.clientId;
     this._clientSecret = options.clientId;
 
-    this._discoveryHandler = (data => {
-      console.log('discoveryHandler not defined')
+    this._discoveryHandler = ((response, data) => {
+      console.log('discoverDevices not defined')
     });
 
-    this._stateRefreshHandler = (data => {
+    this._stateRefreshHandler = ((response, data) => {
       console.log('stateRefreshHandler not defined')
     });
 
-    this._commandHandler = (data => {
+    this._commandHandler = ((response, data) => {
       console.log('commandHandler not defined')
     });
 
-    this._grantCallbackAccessHandler = (data => {
-      console.log('grantCallbackAccessHandler not defined')
+    this._callbackAccessHandler = (data => {
+      console.log('callbackAccessHandler not defined')
     });
 
     this._integrationDeletedHandler = (data => {
@@ -79,8 +84,8 @@ module.exports = class SchemaConnector {
   /**
    * Sets the grant callback access handler
    */
-  grantCallbackAccessHandler(callback) {
-    this._grantCallbackAccessHandler = callback
+  callbackAccessHandler(callback) {
+    this._callbackAccessHandler = callback
     return this
   }
 
@@ -109,6 +114,33 @@ module.exports = class SchemaConnector {
     return this
   }
 
+  manufacturerName(value) {
+    this._manufacturerName = value
+    return this
+  }
+
+  async updateState(callbackUrls, callbackAuth, deviceState) {
+    try {
+      await new StateUpdateRequest().updateState(callbackUrls.stateCallback, callbackAuth.accessToken, deviceState);
+    }
+    catch (err) {
+      if (err.statusCode === 401) {
+        const refreshResponse = await (new RefreshTokenRequest().getCallbackToken(
+          it.callbackUrls.oauthToken,
+          this.clientId,
+          this.clientSecret,
+          it.callbackAuth.refreshToken));
+
+        db.refreshCallbackToken(it.access_token, refreshResponse.callbackAuthentication);
+        updateState(refreshResponse.callbackAuthentication.accessToken, it.callbackUrls.stateCallback, deviceState)
+        await new StateUpdateRequest().updateState(callbackUrls.stateCallback, callbackAuth.accessToken, deviceState)
+      }
+      else {
+        console.log(err)
+      }
+    }
+  }
+
   /**
    * Use with an AWS Lambda function. No signature verification is required.
    *
@@ -128,7 +160,7 @@ module.exports = class SchemaConnector {
    * @param {*} response
    */
   async handleHttpCallback(request, response) {
-    const reply = await this._handleCallback(request.body)
+    const reply = await this._handleCallback(request.body);
     response.send(reply)
   }
 
@@ -136,32 +168,54 @@ module.exports = class SchemaConnector {
     return await this._handleCallback(body)
   }
 
-  async _handleCallback(data) {
-    let response;
+  async _handleCallback(body) {
+    let response = {};
     try {
-      switch (data.headers.interactionType) {
+      switch (body.headers.interactionType) {
         case "discoveryRequest":
-          response = await this._discoveryHandler(data);
+          response = new DiscoveryResponse(body.headers.requestId);
+          await this._discoveryHandler(body.authentication.token, response, body);
           break;
+
         case "commandRequest":
-          response = await this._commandHandler(data);
+          response = new CommandResponse(body.headers.requestId);
+          await this._commandHandler(body.authentication.token, response, body.devices, body);
           break;
+
         case "stateRefreshRequest":
-          response = await this._stateRefreshHandler(data);
+          response = new StateRefreshResponse(body.headers.requestId);
+          await this._stateRefreshHandler(body.authentication.token, response, body);
           break;
+
         case "grantCallbackAccess":
-          response = await this._grantCallbackAccessHandler(data);
+          if (body.callbackAuthentication.clientId === this._clientId ) {
+
+            const grantResponse = await (
+              new AccessTokenRequest(
+                body.headers.requestId
+              ).getCallbackToken(
+                body.callbackUrls.oauthToken,
+                this._clientId,
+                this._clientSecret,
+                body.callbackAuthentication.code
+              )
+            );
+
+            console.log(`GRANT RESPONSE: ${JSON.stringify(grantResponse, null, 2)}`)
+            this._callbackAccessHandler(body.authentication.token, grantResponse.callbackAuthentication, body.callbackUrls, body)
+          }
           break;
+
         case "integrationDeleted":
-          response = await this._integrationDeletedHandler(data);
+          this._integrationDeletedHandler(body.authentication.token, body);
           break;
+
         default:
-          response = {error: `Unsupported interactionType: ${data.headers.interactionType}`};
-          console.log(response);
+          response = {error: `Unsupported interactionType: ${body.headers.interactionType}`};
           break;
       }
 
-      console.log(`RESPONSE: ${JSON.stringify(response, null, 2)}`)
+      console.log(`RESPONSE: ${JSON.stringify(response, null, 2)}`);
       return response;
     }
     catch (err) {
