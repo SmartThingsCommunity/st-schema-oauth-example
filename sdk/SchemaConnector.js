@@ -4,7 +4,6 @@ const DiscoveryResponse = require("./discovery/DiscoveryResponse");
 const StateRefreshResponse = require("./state/StateRefreshResponse");
 const CommandResponse = require("./state/CommandResponse");
 const AccessTokenRequest = require("./callbacks/AccessTokenRequest");
-const StateUpdateRequest = require("./callbacks/StateUpdateRequest");
 
 module.exports = class SchemaConnector {
 
@@ -118,28 +117,6 @@ module.exports = class SchemaConnector {
   manufacturerName(value) {
     this._manufacturerName = value
     return this
-  }
-
-  async updateState(callbackUrls, callbackAuth, deviceState) {
-    try {
-      await new StateUpdateRequest().updateState(callbackUrls.stateCallback, callbackAuth.accessToken, deviceState);
-    }
-    catch (err) {
-      if (err.statusCode === 401) {
-        const refreshResponse = await (new RefreshTokenRequest().getCallbackToken(
-          it.callbackUrls.oauthToken,
-          this.clientId,
-          this.clientSecret,
-          it.callbackAuth.refreshToken));
-
-        db.refreshCallbackToken(it.access_token, refreshResponse.callbackAuthentication);
-        updateState(refreshResponse.callbackAuthentication.accessToken, it.callbackUrls.stateCallback, deviceState)
-        await new StateUpdateRequest().updateState(callbackUrls.stateCallback, callbackAuth.accessToken, deviceState)
-      }
-      else {
-        console.log(err)
-      }
-    }
   }
 
   /**

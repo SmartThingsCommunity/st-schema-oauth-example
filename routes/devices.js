@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../lib/db');
-const devices = require('../lib/devices');
+const deviceService = require('../lib/device-service');
 const mapping = require('../lib/mapping');
 
 /* GET home page. */
@@ -26,7 +26,7 @@ router.post('/command', async(req, res) => {
   const params = req.body;
   const externalStates = params.states;
   await db.updateDeviceState(params.username, params.externalId, externalStates);
-  devices.updateProactiveState(params.username, params.externalId, externalStates);
+  deviceService.updateProactiveState(params.username, params.externalId, externalStates);
   res.send({})
 });
 
@@ -46,6 +46,6 @@ router.post('/delete', async(req, res) => {
   res.redirect('/devices')
 });
 
-router.get('/stream', devices.sse.init);
+router.get('/stream', deviceService.sse.init);
 
 module.exports = router;
