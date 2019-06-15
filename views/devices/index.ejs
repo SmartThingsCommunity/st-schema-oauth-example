@@ -125,7 +125,7 @@
 
 <div id="deviceDetailDialog" title="Device Details" data-bind="with: selectedDevice" style="display: none;">
   <h4 data-bind="text: displayName"></h4>
-  <form>
+  <form onsubmit="return false;">
     <div data-bind="foreach: displayStates">
       <div class="form-group" data-bind="if: isEnumControl">
         <label data-bind="text: displayName"></label>

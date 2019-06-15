@@ -24,6 +24,8 @@ router.get('/login', authRequestHandler);
  * Processes OAuth logins
  */
 router.get("/login-as", async (req, res) => {
+  //console.log(`GET login-as HEAD: ${JSON.stringify(req.headers, null, 2)}`)
+  //console.log(`GET login-as BODY: ${JSON.stringify(req.body, null, 2)}`)
 
   let account = await db.getAccount(req.query.email);
   if ((account && !account.passwordMatches(req.query.password)) || (req.query.signin && !account)) {
@@ -62,17 +64,23 @@ router.get("/login-as", async (req, res) => {
  * Processes redemption of OAuth codes and refresh tokens
  */
 router.post('/token', async (req, res) => {
+  //console.log(`GET login-as HEAD: ${JSON.stringify(req.headers, null, 2)}`)
+  //console.log(`GET login-as BODY: ${JSON.stringify(req.body, null, 2)}`)
+
   if (validateAccessTokenRequest(req, res)) {
     let code = null;
     let token = null;
-    if (req.body.grant_type === "refresh_token") {
+    if (req.body.grant_type === 'refresh_token') {
       token = await db.refreshToken(req.body.refresh_token)
-    } else {
+    } else if (req.body.grant_type === 'authorization_code'){
       token = await db.redeemCode(req.body.code)
     }
 
-    if (token !== undefined) {
+    if (token) {
       res.send(token)
+    }
+    else {
+      res.status(401).send('Invalid grant type')
     }
   }
   res.end()
@@ -90,19 +98,12 @@ function errorMsg(descr, expected, actual) {
 function validateAccessTokenRequest(req, res) {
   let success = true, msg;
 
-  if (req.body.grant_type === "refresh_token") {
-
-    if (req.body.client_secret !== clientSecret) {
-      msg = `Invalid clientSecret, received ${req.body.client_secret}`;
-      success = false
-    }
-    else if (req.body.client_id !== clientId) {
-      msg = `Invalid clientId, received ${req.body.client_secret} expected ${clientId}`;
-      success = false
-    }
+  if (req.body.client_secret !== clientSecret) {
+    msg = `Invalid clientSecret, received ${req.body.client_secret}`;
+    success = false
   }
-  else {
-   msg = `Invalid grant type, received ${req.body.grant_type} expected 'refresh_token'`;
+  else if (req.body.client_id !== clientId) {
+    msg = `Invalid clientId, received ${req.body.client_secret} expected ${clientId}`;
     success = false
   }
 
