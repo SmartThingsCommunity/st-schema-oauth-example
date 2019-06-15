@@ -7,8 +7,6 @@ const session = require("express-session");
 const DynamoDBStore = require('dynamodb-store');
 const path = require('path');
 const morgan = require('morgan');
-//const EventEmitter = require('events');
-//const Stream = new EventEmitter();
 
 const indexRouter = require('./routes/index');
 const devicesRouter = require('./routes/devices');

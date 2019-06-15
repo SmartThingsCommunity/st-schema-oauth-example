@@ -59,6 +59,7 @@
   </div>
   <div class="row">
     <div class="col-lg-12">
+
       <div data-bind="foreach: devices">
         <div class="deviceTile">
           <span class="deviceControl" data-bind="click: toggleState, class: tileState">
@@ -67,7 +68,12 @@
           <a class="displayName" data-bind="text: displayName, attr: {id: externalId}"></a>
         </div>
       </div>
+    </div>
+  </div>
 
+  <div class="row" data-bind="ifnot: hasDevices">
+    <div class="col-lg-12">
+      <a href="#" id="addDeviceLink">Create your first device</a>
     </div>
   </div>
 </div>

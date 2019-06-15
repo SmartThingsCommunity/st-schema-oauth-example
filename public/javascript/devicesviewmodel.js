@@ -1,11 +1,16 @@
 const ViewModel = function (viewData) {
   this.username = viewData.username;
+
   this.devices = viewData.devices.sort( (a, b) => {
     return a.displayName === b.displayName ? 0 : (a.displayName > b.displayName) ? 1 : -1
   })
-    .map(device => {
-      return new Device(this, device)
-    });
+  .map(device => {
+    return new Device(this, device)
+  });
+
+  this.hasDevices = ko.pureComputed(function() {
+    return this.devices && this.devices.length > 0
+  }, this);
 
   this.selectedDevice = ko.observable();
 

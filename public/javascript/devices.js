@@ -79,7 +79,7 @@ function controlMetadata(attribute) {
 
 $( document ).ready(function() {
 
-  $('#addDeviceButton').click(function() {
+  $('#addDeviceButton, #addDeviceLink').click(function() {
     $( "#addDeviceDialog" ).dialog({width: 400, modal: true});
     return false;
   });
