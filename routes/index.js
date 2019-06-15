@@ -3,7 +3,9 @@ var router = express.Router();
 const db = require('../lib/db');
 const Account = require('../lib/account');
 
-/* GET home page. */
+/**
+ * Home page
+ */
 router.get('/', function(req, res, next) {
   res.render('index', {
     title: 'ST Schema Example with OAuth',
@@ -16,6 +18,10 @@ router.get('/', function(req, res, next) {
   });
 });
 
+
+/**
+ * Page for testing OAuth redirects
+ */
 router.get('/redirect', function(req, res, next) {
   res.render('redirect', {
     headers: JSON.stringify(req.headers, null, 2),
@@ -23,18 +29,30 @@ router.get('/redirect', function(req, res, next) {
   });
 });
 
+
+/**
+ * Website login page
+ */
 router.get('/login', function(req, res, next) {
   res.render('login', {
     errorMessage: ''
   });
 });
 
+
+/**
+ * Website logout page
+ */
 router.get('/logout', function(req, res, next) {
   req.session.destroy(err => {
     res.redirect('/login')
   })
 });
 
+
+/**
+ * Processes website logins
+ */
 router.post("/login-as", async (req, res) => {
 
   let account = await db.getAccount(req.body.email)

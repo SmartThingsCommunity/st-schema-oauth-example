@@ -12,7 +12,7 @@ sensors, and thermostats.
 ## File Structure
 
 * lib -- Example third party app classes
-  * Account.js -- Account abstraction and password management
+  * Account.js -- Account domain object and password management
   * connector -- The ST Schema connector
   * db.js -- Reading and writing of devices and access tokens to DynamoDB
   * device-service.js -- Proactive state callbacks

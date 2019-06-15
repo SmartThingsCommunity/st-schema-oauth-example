@@ -14,8 +14,15 @@ const permittedRedirectUrls = (process.env.PERMITTED_REDIRECT_URLS ?
 
 let redirect_uri;
 
+/**
+ * OAuth login page displayed by ST mobile app
+ */
 router.get('/login', authRequestHandler);
 
+
+/**
+ * Processes OAuth logins
+ */
 router.get("/login-as", async (req, res) => {
 
   let account = await db.getAccount(req.query.email);
@@ -48,8 +55,12 @@ router.get("/login-as", async (req, res) => {
     res.writeHead(307, {"Location": location});
     res.end()
   }
-})
+});
 
+
+/**
+ * Processes redemption of OAuth codes and refresh tokens
+ */
 router.post('/token', async (req, res) => {
   if (validateAccessTokenRequest(req, res)) {
     let code = null;
@@ -67,6 +78,7 @@ router.post('/token', async (req, res) => {
   res.end()
 });
 
+
 function now() {
   return Math.round(new Date().valueOf() / 1000)
 }
@@ -75,18 +87,7 @@ function errorMsg(descr, expected, actual) {
   return "expected " + descr + ": " + expected + ", actual: " + actual
 }
 
-function validateClientId(actualClientId, res) {
-  if (actualClientId === clientId) {
-    return true
-  }
-  res.writeHead(400, {
-    "X-Debug": errorMsg("client_id", clientId, actualClientId)
-  });
-  res.end();
-  return false
-}
-
-async function validateAccessTokenRequest(req, res) {
+function validateAccessTokenRequest(req, res) {
   let success = true, msg;
 
   if (req.body.grant_type === "refresh_token") {
