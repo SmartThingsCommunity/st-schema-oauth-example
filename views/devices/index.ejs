@@ -13,7 +13,6 @@
   <link
       href='/stylesheets/style.css'
       rel='stylesheet' />
-
   <script
       src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
   <script
@@ -46,7 +45,7 @@
     <div class="col-lg-12">
 
       <div class="dropleft" id="dropdownMenu" style="float: right">
-        <button class="btn btn-light" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">...</button>
+        <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">...</button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item" href="#" id="addDeviceButton">Add Device</a>
           <a class="dropdown-item" href="#" id="deleteDevicesButton">Delete Devices</a>
@@ -128,7 +127,6 @@
   <h4 data-bind="text: displayName"></h4>
   <form>
     <div data-bind="foreach: displayStates">
-
       <div class="form-group" data-bind="if: isEnumControl">
         <label data-bind="text: displayName"></label>
         <select class="custom-select" data-bind="value: propertyValue, foreach: enumValues">
@@ -151,7 +149,6 @@
         <label data-bind="text: displayName"></label>
         <input type="text" class="custom-control" data-bind="value: propertyValue">
       </div>
-
     </div>
   </form>
 </div>

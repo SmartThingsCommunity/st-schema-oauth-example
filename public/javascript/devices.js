@@ -2,74 +2,77 @@ function capitalize(str) {
   return str.split().map(it => it.charAt(0).toUpperCase() + it.slice(1))
 }
 
-function toggleValue(attribute, value) {
-  if (attribute === 'motion') {
+function toggleValue(externalAttribute, value) {
+  if (externalAttribute === 'motion') {
     return value === 'active' ? 'inactive' : 'active'
   }
-  else if (attribute === 'contact') {
+  else if (externalAttribute === 'contact') {
     return value === 'open' ? 'closed' : 'open'
   }
-  else {
+  else if (externalAttribute === 'switch') {
     return value === 'on' ? 'off' : 'on'
+  }
+  else {
+    return value
   }
 }
 
-function mainAttribute(states) {
-  if (states['switch']) {
+function mainAttribute(externalStates) {
+  if (externalStates['switch']) {
     return 'switch'
   }
-  else if (states['contact']) {
+  else if (externalStates['contact']) {
     return 'contact'
   }
-  else if (states['motion']) {
+  else if (externalStates['motion']) {
     return 'motion'
   }
-  else if (states['temperature']) {
+  else if (externalStates['temperature']) {
     return 'temperature'
   }
   else {
-    return Object.keys(states)[0]
+    return Object.keys(externalStates)[0]
   }
 }
 
-function controlMetadata(attribute) {
-  if (attribute === 'motion') {
+function controlMetadata(externalAttribute) {
+  if (externalAttribute === 'motion') {
     return {type: 'enum', values: ['inactive', 'active']}
   }
-  else if (attribute === 'contact') {
+  else if (externalAttribute === 'contact') {
     return {type: 'enum', values: ['closed', 'open']}
   }
-  else if (attribute === 'switch') {
+  else if (externalAttribute === 'switch') {
     return {type: 'enum', values: ['off', 'on']}
   }
-  else if (attribute === 'brightness') {
+  else if (externalAttribute === 'brightness') {
     return {type: 'slider', min: 0, max: 100}
   }
-  else if (attribute === 'colorTemperature') {
+  else if (externalAttribute === 'colorTemperature') {
     return {type: 'slider', min: 2400, max: 6800}
   }
-  else if (attribute === 'hue') {
+  else if (externalAttribute === 'hue') {
     return {type: 'slider', min: 0, max: 360}
   }
-  else if (attribute === 'saturation') {
+  else if (externalAttribute === 'saturation') {
     return {type: 'slider', min: 0, max: 100}
   }
-  else if (attribute === 'heatingSetpoint') {
+  else if (externalAttribute === 'heatingSetpoint') {
     return {type: 'slider', min: 50, max: 90}
   }
-  else if (attribute === 'coolingSetpoint') {
+  else if (externalAttribute === 'coolingSetpoint') {
     return {type: 'slider', min: 50, max: 90}
   }
-  else if (attribute === 'thermostatMode') {
+  else if (externalAttribute === 'thermostatMode') {
     return {type: 'enum', values: ['off', 'heat', 'cool', 'auto']}
   }
-  else if (attribute === 'thermostatFanMode') {
+  else if (externalAttribute === 'thermostatFanMode') {
     return {type: 'enum', values: ['auto', 'on']}
   }
-  else if (attribute === 'thermostatOperatingState') {
+  else if (externalAttribute === 'thermostatOperatingState') {
     return {type: 'enum', values: ['idle', 'heating', 'cooling']}
   }
-  else if (attribute === 'temperature') {
+  else if (externalAttribute === 'temperature') {
     return {type: 'number'}
   }
   else {
@@ -105,34 +108,27 @@ $( document ).ready(function() {
 
     ko.applyBindings(viewModel);
 
-    const eventSource = new EventSource('/devices/stream')
+    const eventSource = new EventSource('/devices/stream');
     eventSource.onmessage = function(e) {
-      console.log(`onmessage: ${e.data}`);
       for (const device of JSON.parse(e.data)) {
         const item = viewModel.devices.find(function(it) {
           return it.externalId === device.externalDeviceId
         });
-        // TODO - handle all attributes
         if (item) {
-          const mainState = device.states.find(function(it) {
-            return it.component === 'main' && it.attribute === 'switch'
-          });
-          if (mainState) {
-            item.mainState(mainState.value)
+          const state = device.states.find(it => { return it.attribute === item.mainAttribute });
+          if (state) {
+            item.mainState(state.value)
           }
         }
       }
     };
 
     $('.displayName').click(function() {
-      console.log('click');
-      const elem = $(this);
-      const externalId = elem.attr('id');
-      console.log('selected ' + externalId);
+      const externalId = $(this).attr('id');
       viewModel.selectDevice(externalId);
       $( "#deviceDetailDialog" ).dialog({width: 400, modal: true});
       return false;
-    })
+    });
 
     eventSource.onerror = function(e) {
       console.log('EventSource failed %j', e);

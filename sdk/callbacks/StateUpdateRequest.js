@@ -3,6 +3,7 @@
 const rp = require('request-promise-native');
 const STBase = require("../STBase");
 const uuid = require('uuid/v4');
+const RefreshTokenRequest = require('./RefreshTokenRequest')
 
 module.exports = class StateUpdateRequest extends STBase {
 
@@ -13,19 +14,18 @@ module.exports = class StateUpdateRequest extends STBase {
   }
 
   updateState(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
-    return updateState(this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState).catch (err => {
+    return updateState(this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState).catch (async err => {
       if (err.statusCode === 401) {
-        const refreshResponse = await (new RefreshTokenRequest().getCallbackToken(
+        return new RefreshTokenRequest().getCallbackToken(
           callbackUrls.oauthToken,
           this.clientId,
           this.clientSecret,
-          callbackAuth.refreshToken));
-
-        if (refreshedCallback) {
-           refreshedCallback(callbackAuthentication)
-        }
-
-        return updateState(this, refreshResponse.callbackAuthentication.accessToken, it.callbackUrls.stateCallback, deviceState)
+          callbackAuth.refreshToken).then(refreshResponse => {
+          if (refreshedCallback) {
+            refreshedCallback(callbackAuthentication)
+          }
+          return updateState(this, refreshResponse.callbackAuthentication.accessToken, it.callbackUrls.stateCallback, deviceState)
+        })
       }
       else {
         return new Promise((resolve, reject) => {

@@ -17,7 +17,7 @@
       <p class="errorMessage"><%= errorMessage %></p>
       <% } %>
 
-      <form action="/login-as" method="POST">
+      <form action="/login-as" class="login" method="POST">
         <div class="form-group">
           <label for="email">Email: </label>
           <input type="email" class="form-control" name="email" id="email"/>
@@ -26,7 +26,7 @@
           <label for="password">Password: </label>
           <input type="password" name="password" id="password" class="form-control"/>
         </div>
-        <input class="btn btn-primary" type="submit" name="signin" value="Sign In & Authorize"/>
+        <input class="btn btn-primary" type="submit" name="signin" value="Sign In"/>
         <input class="btn btn-info" type="submit" name="register" value="Create New Account"/>
       </form>
     </div>

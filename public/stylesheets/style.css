@@ -105,10 +105,14 @@ h3 {
 
 #dropdownMenuButton {
     margin-top: 20px;
+    background-color: #dddddd;
 }
 
 input.number-control {
     width: 100%;
     display: inline-block;
     height: 2.25em;
+}
+form.login input.btn {
+    width: 175px;
 }

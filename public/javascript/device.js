@@ -25,27 +25,28 @@ const Device = function (parent, device) {
 
   this.toggleState = function () {
     const mainState = this.mainState;
-    const mainAttribute = this.mainAttribute
+    const mainAttribute = this.mainAttribute;
     const tileActive = this.tileActive;
     const value = mainState();
     const newValue = toggleValue(this.mainAttribute, value);
+    if (value !== newValue) {
+      tileActive(true);
 
-    tileActive(true);
-
-    $.ajax({
-      type: "POST",
-      url: '/devices/command',
-      data: JSON.stringify({
-        username: parent.username,
-        externalId: this.externalId,
-        states: {[mainAttribute]: newValue}
-      }),
-      success: function (data) {
-        mainState(newValue);
-        tileActive(false)
-      },
-      dataType: 'json',
-      contentType: "application/json; charset=utf-8"
-    });
+      $.ajax({
+        type: "POST",
+        url: '/devices/command',
+        data: JSON.stringify({
+          username: parent.username,
+          externalId: this.externalId,
+          states: {[mainAttribute]: newValue}
+        }),
+        success: function (data) {
+          mainState(newValue);
+          tileActive(false)
+        },
+        dataType: 'json',
+        contentType: "application/json; charset=utf-8"
+      });
+    }
   }
 };
