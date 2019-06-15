@@ -20,11 +20,14 @@ module.exports = class StateUpdateRequest extends STBase {
           callbackUrls.oauthToken,
           this.clientId,
           this.clientSecret,
-          callbackAuth.refreshToken).then(refreshResponse => {
+          callbackAuth.refreshToken
+        ).then(refreshResponse => {
           if (refreshedCallback) {
             refreshedCallback(callbackAuthentication)
           }
           return updateState(this, refreshResponse.callbackAuthentication.accessToken, it.callbackUrls.stateCallback, deviceState)
+        }).catch(err => {
+          console.log(`${err.message} refreshing callback access token`)
         })
       }
       else {
