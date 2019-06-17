@@ -126,9 +126,9 @@ module.exports = class SchemaConnector {
    * @param {*} context
    * @param {*} callback
    */
-  async handleLambdaCallback(event, context, callback) {
+  async handleLambdaCallback(event, context) {
     const reply = await this._handleCallback(event);
-    callback(reply)
+    return context.succeed(reply);
   }
 
   /**

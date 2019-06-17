@@ -16,14 +16,12 @@ module.exports = class StateUpdateRequest extends STBase {
   updateState(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
     return updateState(this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState).catch (async err => {
       if (err.statusCode === 401) {
-        return new RefreshTokenRequest().getCallbackToken(
+        return new RefreshTokenRequest(this.clientId, this.clientSecret).getCallbackToken(
           callbackUrls.oauthToken,
-          this.clientId,
-          this.clientSecret,
           callbackAuth.refreshToken
         ).then(refreshResponse => {
           if (refreshedCallback) {
-            refreshedCallback(callbackAuthentication)
+            refreshedCallback(refreshResponse.callbackAuthentication)
           }
           return updateState(this, refreshResponse.callbackAuthentication.accessToken, it.callbackUrls.stateCallback, deviceState)
         }).catch(err => {

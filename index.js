@@ -55,14 +55,16 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-console.log(`Home:           ${process.env.SERVER_URL}`);
-console.log(`Login:          ${process.env.SERVER_URL}/login`);
-console.log(`Devices:        ${process.env.SERVER_URL}/devices`);
-console.log(`OAuth Test:     ${process.env.SERVER_URL}/oauth/login?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${process.env.SERVER_URL}/redirect&state=xxxyyyzzz`);
-console.log(`Authorization:  ${process.env.SERVER_URL}/oauth/login`);
-console.log(`Refresh:        ${process.env.SERVER_URL}/oauth/token`);
-console.log(`ST Schema:      ${process.env.SERVER_URL}/schema`);
-console.log(`Client ID:      ${process.env.CLIENT_ID}`);
-console.log(`Client Secret:  ${process.env.CLIENT_SECRET}`);
+console.log(`Home:              ${process.env.SERVER_URL}`);
+console.log(`Login:             ${process.env.SERVER_URL}/login`);
+console.log(`Devices:           ${process.env.SERVER_URL}/devices`);
+console.log(`OAuth Test:        ${process.env.SERVER_URL}/oauth/login?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${process.env.SERVER_URL}/redirect&state=xxxyyyzzz`);
+
+console.log("\nST Connector configuration:");
+console.log(`Target URL:        ${process.env.SERVER_URL}/schema`);
+console.log(`Client ID:         ${process.env.CLIENT_ID}`);
+console.log(`Client Secret:     ${process.env.CLIENT_SECRET}`);
+console.log(`Authorization URI: ${process.env.SERVER_URL}/oauth/login`);
+console.log(`Refresh Token URL: ${process.env.SERVER_URL}/oauth/token\n`);
 
 app.listen(port);

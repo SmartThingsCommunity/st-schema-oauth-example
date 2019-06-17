@@ -4,13 +4,15 @@ const rp = require('request-promise-native');
 const STBase = require("../STBase");
 const uuid = require('uuid/v4');
 
-module.exports = class RefreshTokenResponse extends STBase {
+module.exports = class RefreshTokenRequest extends STBase {
 
-  constructor() {
+  constructor(clientId, clientSecret) {
     super('refreshAccessTokens', uuid());
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
   }
 
-  getCallbackToken(url, clientId, clientSecret, refreshToken) {
+  getCallbackToken(url, refreshToken) {
     const options = {
       url: url,
       method: 'POST',
@@ -23,8 +25,8 @@ module.exports = class RefreshTokenResponse extends STBase {
         callbackAuthentication: {
           grantType: "refresh_token",
           refreshToken: refreshToken,
-          clientId: clientId,
-          clientSecret: clientSecret
+          clientId: this.clientId,
+          clientSecret: this.clientSecret
         }
       }
     };
