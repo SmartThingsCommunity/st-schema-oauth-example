@@ -170,9 +170,9 @@ module.exports = class SchemaConnector {
 
             const grantResponse = await (
               new AccessTokenRequest(
-                body.headers.requestId,
                 this._clientId,
-                this._clientSecret
+                this._clientSecret,
+                body.headers.requestId
               ).getCallbackToken(
                 body.callbackUrls.oauthToken,
                 body.callbackAuthentication.code
