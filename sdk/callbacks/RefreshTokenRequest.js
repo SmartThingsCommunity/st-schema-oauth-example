@@ -33,4 +33,4 @@ module.exports = class RefreshTokenRequest extends STBase {
 
     return rp(options);
   }
-}
+};

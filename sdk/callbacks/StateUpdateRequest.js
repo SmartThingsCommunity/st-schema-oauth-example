@@ -3,7 +3,7 @@
 const rp = require('request-promise-native');
 const STBase = require("../STBase");
 const uuid = require('uuid/v4');
-const RefreshTokenRequest = require('./RefreshTokenRequest')
+const RefreshTokenRequest = require('./RefreshTokenRequest');
 
 module.exports = class StateUpdateRequest extends STBase {
 
@@ -23,7 +23,7 @@ module.exports = class StateUpdateRequest extends STBase {
           if (refreshedCallback) {
             refreshedCallback(refreshResponse.callbackAuthentication)
           }
-          return updateState(this, refreshResponse.callbackAuthentication.accessToken, it.callbackUrls.stateCallback, deviceState)
+          return updateState(this, callbackUrls.stateCallback, refreshResponse.callbackAuthentication.accessToken, deviceState)
         }).catch(err => {
           console.log(`${err.message} refreshing callback access token`)
         })

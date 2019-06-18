@@ -1,15 +1,18 @@
 'use strict';
 
 const rp = require('request-promise-native');
-const
-  STBase = require("../STBase");
-module.exports = class AccessTokenResponse extends STBase {
+const STBase = require("../STBase");
+const uuid = require('uuid/v4');
 
-  constructor(requestId) {
-    super('accessTokenRequest', requestId);
+module.exports = class AccessTokenRequest extends STBase {
+
+  constructor(clientId, clientSecret, requestId) {
+    super('accessTokenRequest', requestId ? requestId : uuid());
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
   }
 
-  getCallbackToken(url, clientId, clientSecret, code) {
+  getCallbackToken(url, code) {
     const options = {
       url: url,
       method: 'POST',
@@ -22,8 +25,8 @@ module.exports = class AccessTokenResponse extends STBase {
         callbackAuthentication: {
           grantType: "authorization_code",
           code: code,
-          clientId: clientId,
-          clientSecret: clientSecret
+          clientId: this.clientId,
+          clientSecret: this.clientSecret
         }
       }
     };

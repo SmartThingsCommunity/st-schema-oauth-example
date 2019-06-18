@@ -170,11 +170,11 @@ module.exports = class SchemaConnector {
 
             const grantResponse = await (
               new AccessTokenRequest(
-                body.headers.requestId
+                body.headers.requestId,
+                this._clientId,
+                this._clientSecret
               ).getCallbackToken(
                 body.callbackUrls.oauthToken,
-                this._clientId,
-                this._clientSecret,
                 body.callbackAuthentication.code
               )
             );
@@ -200,4 +200,4 @@ module.exports = class SchemaConnector {
       console.error(err)
     }
   }
-}
+};
