@@ -116,3 +116,7 @@ input.number-control {
 form.login input.btn {
     width: 175px;
 }
+
+#oauth-buttons {
+    margin-top: 40px;
+}

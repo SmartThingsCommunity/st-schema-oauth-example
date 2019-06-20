@@ -2,7 +2,7 @@
 <head>
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
   <link rel='stylesheet' href='/stylesheets/style.css' />
-  <title>Mock Google OAuth2 (and maybe other services)</title>
+  <title>ST Schema Connector</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -11,7 +11,7 @@
     <div class="col-lg-3"></div>
     <div class="col-lg-6">
 
-      <h3>C2C ST Schema Connector</h3>
+      <h3>ST Schema Connector</h3>
 
       <% if (errorMessage) { %>
         <p class="errorMessage"><%= errorMessage %></p>
@@ -26,12 +26,21 @@
           <label for="password">Password: </label>
           <input type="password" name="password" id="password" class="form-control"/>
         </div>
-        <div class="form-group" style="display: none;">
-          <label for="expires_in">Token expiry (in seconds): </label>
-          <input type="text" class="form-control" value="86400" name="expires_in" id="expires_in"/>
+        <div class="form-group">
+          <label for="expires_in">Token expiration: </label>
+          <select class="custom-select" name="expires_in" id="expires_in">
+            <option value="2538000">30 Days</option>
+            <option value="84600" selected>1 Day</option>
+            <option value="3600">1 Hour</option>
+            <option value="300">5 minutes</option>
+            <option value="120">2 minutes</option>
+            <option value="60">1 minute</option>
+          </select>
         </div>
-        <input class="oauth btn btn-primary" type="submit" name="signin" value="Sign In & Authorize"/>
-        <input class="oauth btn btn-info" type="submit" name="register" value="Create New Account"/>
+        <div class="form-group" id="oauth-buttons">
+          <input class="oauth btn btn-primary" type="submit" name="signin" value="Sign In & Authorize"/>
+          <input class="oauth btn btn-info" type="submit" name="register" value="Create New Account"/>
+        </div>
       </form>
     </div>
     <div class="col-lg-3"></div>

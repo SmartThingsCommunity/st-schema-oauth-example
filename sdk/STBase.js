@@ -45,13 +45,14 @@ class STBase {
   /**
    * set error
    * @param {string} description
-   * @param {string} errorNum
+   * @param {string} errorEnum
    */
-  setError(detail, errorEnum = "UNKNOWN-ERROR") {
+  setError(description, errorEnum = "UNKNOWN-ERROR") {
     this.globalError = {
-      detail,
+      description,
       errorEnum
     };
+    return this;
   }
   /**
    * has globalError or not

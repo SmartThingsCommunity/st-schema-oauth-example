@@ -4,6 +4,7 @@ const DiscoveryResponse = require("./discovery/DiscoveryResponse");
 const StateRefreshResponse = require("./state/StateRefreshResponse");
 const CommandResponse = require("./state/CommandResponse");
 const AccessTokenRequest = require("./callbacks/AccessTokenRequest");
+const ErrorResponse = require('./STBase');
 
 module.exports = class SchemaConnector {
 
@@ -23,9 +24,7 @@ module.exports = class SchemaConnector {
       console.log('commandHandler not defined')
     });
 
-    this._callbackAccessHandler = (data => {
-      console.log('callbackAccessHandler not defined')
-    });
+    this._callbackAccessHandler = null;
 
     this._integrationDeletedHandler = (data => {
       console.log('integrationDeletedHandler not defined')
@@ -127,28 +126,53 @@ module.exports = class SchemaConnector {
    * @param {*} callback
    */
   async handleLambdaCallback(event, context) {
-    const reply = await this._handleCallback(event);
-    return context.succeed(reply);
+    try {
+      const response = await this._handleCallback(event);
+      if (response.isError()) {
+        return context.fail(response)
+      }
+      else {
+        return context.succeed(response);
+      }
+    }
+    catch (err) {
+      return context.fail(err)
+    }
   }
 
   /**
    * Use with a standard HTTP webhook endpoint app. Signature verification is required.
    *
-   * @param {*} request
+   * @param {*} req
    * @param {*} response
    */
-  async handleHttpCallback(request, response) {
-    const reply = await this._handleCallback(request.body);
-    response.send(reply)
+  async handleHttpCallback(req, res) {
+    try {
+      const response = await this._handleCallback(req.body);
+      if (response.isError()) {
+        res.status(500).send(response)
+      }
+      else {
+        res.send(response)
+      }
+    }
+    catch (err) {
+      res.status(500).send(err)
+    }
   }
 
   async handleMockCallback(body) {
-    return await this._handleCallback(body)
+    try {
+      return await this._handleCallback(body)
+    }
+    catch (err) {
+      return err;
+    }
   }
 
   async _handleCallback(body) {
     let response = {};
-    try {
+    if (body.headers) {
       switch (body.headers.interactionType) {
         case "discoveryRequest":
           response = new DiscoveryResponse(body.headers.requestId);
@@ -166,38 +190,41 @@ module.exports = class SchemaConnector {
           break;
 
         case "grantCallbackAccess":
-          if (body.callbackAuthentication.clientId === this._clientId ) {
+          if (this._callbackAccessHandler) {
+            if (body.callbackAuthentication.clientId === this._clientId ) {
 
-            const grantResponse = await (
-              new AccessTokenRequest(
-                this._clientId,
-                this._clientSecret,
-                body.headers.requestId
-              ).getCallbackToken(
-                body.callbackUrls.oauthToken,
-                body.callbackAuthentication.code
-              )
-            );
+              const grantResponse = await (
+                new AccessTokenRequest(
+                  this._clientId,
+                  this._clientSecret,
+                  body.headers.requestId
+                ).getCallbackToken(
+                  body.callbackUrls.oauthToken,
+                  body.callbackAuthentication.code
+                )
+              );
 
-            console.log(`GRANT RESPONSE: ${JSON.stringify(grantResponse, null, 2)}`)
-            this._callbackAccessHandler(body.authentication.token, grantResponse.callbackAuthentication, body.callbackUrls, body)
+              await this._callbackAccessHandler(body.authentication.token, grantResponse.callbackAuthentication, body.callbackUrls, body)
+            }
+            else {
+              response = new ErrorResponse().setError('Invalid client ID');
+            }
           }
           break;
 
         case "integrationDeleted":
-          this._integrationDeletedHandler(body.authentication.token, body);
+          await this._integrationDeletedHandler(body.authentication.token, body);
           break;
 
         default:
-          response = {error: `Unsupported interactionType: ${body.headers.interactionType}`};
+          response = new ErrorResponse().setError(`Unsupported interactionType: ${body.headers.interactionType}`);
           break;
       }
 
-      console.log(`RESPONSE: ${JSON.stringify(response, null, 2)}`);
       return response;
     }
-    catch (err) {
-      console.error(err)
+    else {
+      return new ErrorResponse().setError(`Invalid ST Schema request. No 'headers' field present.`);
     }
   }
 };
