@@ -17,7 +17,6 @@ const port = process.env.PORT || 3000;
 const dynamoSessionTableName = process.env.DYNAMODB_SESSION_TABLE_NAME ? process.env.DYNAMODB_SESSION_TABLE_NAME : 'sts_oauth_example_sessions';
 const app = express();
 
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

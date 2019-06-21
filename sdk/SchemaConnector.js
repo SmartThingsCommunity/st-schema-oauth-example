@@ -4,7 +4,8 @@ const DiscoveryResponse = require("./discovery/DiscoveryResponse");
 const StateRefreshResponse = require("./state/StateRefreshResponse");
 const CommandResponse = require("./state/CommandResponse");
 const AccessTokenRequest = require("./callbacks/AccessTokenRequest");
-const ErrorResponse = require('./STBase');
+const ErrorResponse = require('./ErrorResponse');
+const STBase = require('./STBase');
 
 module.exports = class SchemaConnector {
 
@@ -39,7 +40,7 @@ module.exports = class SchemaConnector {
    * @returns {SchemaConnector} SchemaConnector instance
    */
   clientId(id) {
-    this._clientId = id
+    this._clientId = id;
     return this
   }
 
@@ -52,7 +53,7 @@ module.exports = class SchemaConnector {
    * @returns {SchemaConnector} SmartApp instance
    */
   clientSecret(secret) {
-    this._clientSecret = secret
+    this._clientSecret = secret;
     return this
   }
 
@@ -60,7 +61,7 @@ module.exports = class SchemaConnector {
    * Sets the discovery request handler
    */
   discoveryHandler(callback) {
-    this._discoveryHandler = callback
+    this._discoveryHandler = callback;
     return this
   }
 
@@ -68,7 +69,7 @@ module.exports = class SchemaConnector {
    * Sets the state refresh request handler
    */
   stateRefreshHandler(callback) {
-    this._stateRefreshHandler = callback
+    this._stateRefreshHandler = callback;
     return this
   }
 
@@ -76,7 +77,7 @@ module.exports = class SchemaConnector {
    * Sets the command request handler
    */
   commandHandler(callback) {
-    this._commandHandler = callback
+    this._commandHandler = callback;
     return this
   }
 
@@ -84,7 +85,7 @@ module.exports = class SchemaConnector {
    * Sets the grant callback access handler
    */
   callbackAccessHandler(callback) {
-    this._callbackAccessHandler = callback
+    this._callbackAccessHandler = callback;
     return this
   }
 
@@ -92,7 +93,7 @@ module.exports = class SchemaConnector {
    * Sets integration deleted handler
    */
   integrationDeletedHandler(callback) {
-    this._integrationDeletedHandler = callback
+    this._integrationDeletedHandler = callback;
     return this
   }
 
@@ -109,12 +110,18 @@ module.exports = class SchemaConnector {
    * @returns {SchemaConnector} SmartApp instance
    */
   callbackStore(value) {
-    this._contextStore = value
+    this._contextStore = value;
     return this
   }
 
   manufacturerName(value) {
-    this._manufacturerName = value
+    this._manufacturerName = value;
+    return this
+  }
+
+  enableEventLogging(jsonSpace = null, enableEvents = true) {
+    this._enableEventLogging = enableEvents;
+    this._eventLoggingSpace = jsonSpace;
     return this
   }
 
@@ -123,12 +130,12 @@ module.exports = class SchemaConnector {
    *
    * @param {*} event
    * @param {*} context
-   * @param {*} callback
    */
   async handleLambdaCallback(event, context) {
     try {
       const response = await this._handleCallback(event);
       if (response.isError()) {
+        console.log("ERROR: %j", err);
         return context.fail(response)
       }
       else {
@@ -136,6 +143,7 @@ module.exports = class SchemaConnector {
       }
     }
     catch (err) {
+      console.log("ERROR: %j", err);
       return context.fail(err)
     }
   }
@@ -144,12 +152,13 @@ module.exports = class SchemaConnector {
    * Use with a standard HTTP webhook endpoint app. Signature verification is required.
    *
    * @param {*} req
-   * @param {*} response
+   * @param {*} res
    */
   async handleHttpCallback(req, res) {
     try {
       const response = await this._handleCallback(req.body);
       if (response.isError()) {
+        console.log("ERROR: %j", response);
         res.status(500).send(response)
       }
       else {
@@ -157,6 +166,7 @@ module.exports = class SchemaConnector {
       }
     }
     catch (err) {
+      console.log("ERROR: %j", err);
       res.status(500).send(err)
     }
   }
@@ -171,8 +181,11 @@ module.exports = class SchemaConnector {
   }
 
   async _handleCallback(body) {
-    let response = {};
+    if (this._enableEventLogging) {
+      console.log(`REQUEST ${JSON.stringify(body, null, this._eventLoggingSpace)}`)
+    }
     if (body.headers) {
+      let response;
       switch (body.headers.interactionType) {
         case "discoveryRequest":
           response = new DiscoveryResponse(body.headers.requestId);
@@ -190,6 +203,7 @@ module.exports = class SchemaConnector {
           break;
 
         case "grantCallbackAccess":
+          response = new STBase(body.headers.requestId);
           if (this._callbackAccessHandler) {
             if (body.callbackAuthentication.clientId === this._clientId ) {
 
@@ -213,12 +227,17 @@ module.exports = class SchemaConnector {
           break;
 
         case "integrationDeleted":
+          response = new STBase(body.headers.requestId);
           await this._integrationDeletedHandler(body.authentication.token, body);
           break;
 
         default:
           response = new ErrorResponse().setError(`Unsupported interactionType: ${body.headers.interactionType}`);
           break;
+      }
+
+      if (this._enableEventLogging) {
+        console.log(`RESPONSE ${JSON.stringify(response, null, this._eventLoggingSpace)}`)
       }
 
       return response;
