@@ -4,8 +4,8 @@ const DiscoveryResponse = require("./discovery/DiscoveryResponse");
 const StateRefreshResponse = require("./state/StateRefreshResponse");
 const CommandResponse = require("./state/CommandResponse");
 const AccessTokenRequest = require("./callbacks/AccessTokenRequest");
-const ErrorResponse = require('./ErrorResponse');
 const STBase = require('./STBase');
+const GlobalErrorTypes = require('./errors/global-error-types');
 
 module.exports = class SchemaConnector {
 
@@ -171,7 +171,7 @@ module.exports = class SchemaConnector {
     }
   }
 
-  async handleMockCallback(body) {
+  async handleCallback(body) {
     try {
       return await this._handleCallback(body)
     }
@@ -184,66 +184,72 @@ module.exports = class SchemaConnector {
     if (this._enableEventLogging) {
       console.log(`REQUEST ${JSON.stringify(body, null, this._eventLoggingSpace)}`)
     }
-    if (body.headers) {
-      let response;
-      switch (body.headers.interactionType) {
-        case "discoveryRequest":
-          response = new DiscoveryResponse(body.headers.requestId);
-          await this._discoveryHandler(body.authentication.token, response, body);
-          break;
 
-        case "commandRequest":
-          response = new CommandResponse(body.headers.requestId);
-          await this._commandHandler(body.authentication.token, response, body.devices, body);
-          break;
+    if (!body.headers) {
+      return new STBase().setError(
+        `Invalid ST Schema request. No 'headers' field present.`,
+        GlobalErrorTypes.BAD_REQUEST);
+    }
 
-        case "stateRefreshRequest":
-          response = new StateRefreshResponse(body.headers.requestId);
-          await this._stateRefreshHandler(body.authentication.token, response, body);
-          break;
+    let response;
+    switch (body.headers.interactionType) {
+      case "discoveryRequest":
+        response = new DiscoveryResponse(body.headers.requestId);
+        await this._discoveryHandler(body.authentication.token, response, body);
+        break;
 
-        case "grantCallbackAccess":
-          response = new STBase(body.headers.requestId);
-          if (this._callbackAccessHandler) {
-            if (body.callbackAuthentication.clientId === this._clientId ) {
+      case "commandRequest":
+        response = new CommandResponse(body.headers.requestId);
+        await this._commandHandler(body.authentication.token, response, body.devices, body);
+        break;
 
-              const grantResponse = await (
-                new AccessTokenRequest(
-                  this._clientId,
-                  this._clientSecret,
-                  body.headers.requestId
-                ).getCallbackToken(
-                  body.callbackUrls.oauthToken,
-                  body.callbackAuthentication.code
-                )
-              );
+      case "stateRefreshRequest":
+        response = new StateRefreshResponse(body.headers.requestId);
+        await this._stateRefreshHandler(body.authentication.token, response, body);
+        break;
 
-              await this._callbackAccessHandler(body.authentication.token, grantResponse.callbackAuthentication, body.callbackUrls, body)
-            }
-            else {
-              response = new ErrorResponse().setError('Invalid client ID');
-            }
+      case "grantCallbackAccess":
+        response = new STBase(body.headers.requestId);
+        if (this._callbackAccessHandler) {
+          if (body.callbackAuthentication.clientId === this._clientId ) {
+
+            const tokenRequest = new AccessTokenRequest(
+              this._clientId,
+              this._clientSecret,
+              body.headers.requestId
+            );
+
+            const tokenResponse = await tokenRequest.getCallbackToken(
+              body.callbackUrls.oauthToken,
+              body.callbackAuthentication.code
+            );
+
+            await this._callbackAccessHandler(body.authentication.token, tokenResponse.callbackAuthentication, body.callbackUrls, body)
           }
-          break;
+          else {
+            response = new STBase().setError(`Client ID ${body.callbackAuthentication.clientId} is invalid`,
+              GlobalErrorTypes.INVALID_CLIENT);
+          }
+        }
+        break;
 
-        case "integrationDeleted":
-          response = new STBase(body.headers.requestId);
-          await this._integrationDeletedHandler(body.authentication.token, body);
-          break;
+      case "integrationDeleted":
+        response = new STBase(body.headers.requestId);
+        await this._integrationDeletedHandler(body.authentication.token, body);
+        break;
 
-        default:
-          response = new ErrorResponse().setError(`Unsupported interactionType: ${body.headers.interactionType}`);
-          break;
-      }
+      default:
+        response = new STBase().setError(
+          `Unsupported interactionType: '${body.headers.interactionType}'`,
+          GlobalErrorTypes.INVALID_INTERACTION_TYPE);
 
-      if (this._enableEventLogging) {
-        console.log(`RESPONSE ${JSON.stringify(response, null, this._eventLoggingSpace)}`)
-      }
-
-      return response;
+        break;
     }
-    else {
-      return new ErrorResponse().setError(`Invalid ST Schema request. No 'headers' field present.`);
+
+    if (this._enableEventLogging) {
+      console.log(`RESPONSE ${JSON.stringify(response, null, this._eventLoggingSpace)}`)
     }
+
+    return response;
   }
 };

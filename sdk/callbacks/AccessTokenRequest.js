@@ -7,7 +7,7 @@ const uuid = require('uuid/v4');
 module.exports = class AccessTokenRequest extends STBase {
 
   constructor(clientId, clientSecret, requestId) {
-    super('accessTokenRequest', requestId ? requestId : uuid());
+    super('accessTokenRequest', requestId || uuid());
     this.clientId = clientId;
     this.clientSecret = clientSecret;
   }

@@ -4,6 +4,7 @@ const rp = require('request-promise-native');
 const STBase = require("../STBase");
 const uuid = require('uuid/v4');
 const RefreshTokenRequest = require('./RefreshTokenRequest');
+const doUpdateState = Symbol("private");
 
 module.exports = class StateUpdateRequest extends STBase {
 
@@ -14,8 +15,8 @@ module.exports = class StateUpdateRequest extends STBase {
   }
 
   updateState(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
-    return updateState(this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState).catch (async err => {
-      if (err.statusCode === 401) {
+    return this[doUpdateState] (this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState).catch(async err => {
+      if (refreshedCallback && err.statusCode === 401) {
         return new RefreshTokenRequest(this.clientId, this.clientSecret).getCallbackToken(
           callbackUrls.oauthToken,
           callbackAuth.refreshToken
@@ -23,37 +24,37 @@ module.exports = class StateUpdateRequest extends STBase {
           if (refreshedCallback) {
             refreshedCallback(refreshResponse.callbackAuthentication)
           }
-          return updateState(this, callbackUrls.stateCallback, refreshResponse.callbackAuthentication.accessToken, deviceState)
+          return this[doUpdateState] (this, callbackUrls.stateCallback, refreshResponse.callbackAuthentication.accessToken, deviceState)
         }).catch(err => {
           console.log(`${err.message} refreshing callback access token`)
         })
-      }
-      else {
+      } else {
         return new Promise((resolve, reject) => {
           reject(err)
         })
       }
     })
   }
-};
 
-function updateState(self, callbackUrl, callbackAccessToken, deviceState) {
-  const options = {
-    url: callbackUrl,
-    method: 'POST',
-    json: true,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8'
-    },
-    body: {
-      headers: self.headers,
-      authentication: {
-        "tokenType": "Bearer",
-        "token": callbackAccessToken
+  [doUpdateState](self, callbackUrl, callbackAccessToken, deviceState) {
+    const options = {
+      url: callbackUrl,
+      method: 'POST',
+      json: true,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
       },
-      deviceState: deviceState
-    }
-  };
+      body: {
+        headers: self.headers,
+        authentication: {
+          "tokenType": "Bearer",
+          "token": callbackAccessToken
+        },
+        deviceState: deviceState
+      }
+    };
 
-  return rp(options);
-}
+    return rp(options);
+  }
+
+};

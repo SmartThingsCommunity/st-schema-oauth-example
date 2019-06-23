@@ -40,16 +40,16 @@ class DiscoveryResponse extends STBase {
 
   /**
    * Add a device to discovery response
-   * @param {string} externalId
+   * @param {string} id
    * @param {string} friendlyName
    * @param {string} deviceType
    * @returns {DiscoveryDevice}
    */
-  addDevice(externalId, friendlyName, deviceHandlerType) {
+  addDevice(id, friendlyName, deviceHandlerType) {
     if (! this.devices) {
       this.devices = [];
     }
-    const device = new Device(externalId, friendlyName, deviceHandlerType);
+    const device = new Device(id, friendlyName, deviceHandlerType);
     this.devices.push(device);
     return device;
   }
