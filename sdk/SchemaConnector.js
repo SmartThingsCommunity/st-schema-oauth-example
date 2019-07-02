@@ -7,27 +7,38 @@ const AccessTokenRequest = require("./callbacks/AccessTokenRequest");
 const STBase = require('./STBase');
 const GlobalErrorTypes = require('./errors/global-error-types');
 
+const clientId = Symbol('private)');
+const clientSecret = Symbol('private)');
+const discoveryHandler = Symbol('private)');
+const stateRefreshHandler = Symbol('private)');
+const commandHandler = Symbol('private)');
+const callbackAccessHandler = Symbol('private)');
+const integrationDeletedHandler = Symbol('private)');
+const enableEventLogging = Symbol('private');
+const eventLoggingSpace = Symbol('private');
+const handleCallback = Symbol('private');
+
 module.exports = class SchemaConnector {
 
   constructor(options = {}) {
-    this._clientId = options.clientId;
-    this._clientSecret = options.clientId;
+    this[clientId] = options.clientId;
+    this[clientSecret] = options.clientId;
 
-    this._discoveryHandler = ((response, data) => {
+    this[discoveryHandler] = ((response, data) => {
       console.log('discoverDevices not defined')
     });
 
-    this._stateRefreshHandler = ((response, data) => {
+    this[stateRefreshHandler] = ((response, data) => {
       console.log('stateRefreshHandler not defined')
     });
 
-    this._commandHandler = ((response, data) => {
+    this[commandHandler] = ((response, data) => {
       console.log('commandHandler not defined')
     });
 
-    this._callbackAccessHandler = null;
+    this[callbackAccessHandler] = null;
 
-    this._integrationDeletedHandler = (data => {
+    this[integrationDeletedHandler] = (data => {
       console.log('integrationDeletedHandler not defined')
     })
   }
@@ -40,7 +51,7 @@ module.exports = class SchemaConnector {
    * @returns {SchemaConnector} SchemaConnector instance
    */
   clientId(id) {
-    this._clientId = id;
+    this[clientId] = id;
     return this
   }
 
@@ -53,7 +64,7 @@ module.exports = class SchemaConnector {
    * @returns {SchemaConnector} SmartApp instance
    */
   clientSecret(secret) {
-    this._clientSecret = secret;
+    this[clientSecret] = secret;
     return this
   }
 
@@ -61,7 +72,7 @@ module.exports = class SchemaConnector {
    * Sets the discovery request handler
    */
   discoveryHandler(callback) {
-    this._discoveryHandler = callback;
+    this[discoveryHandler] = callback;
     return this
   }
 
@@ -69,7 +80,7 @@ module.exports = class SchemaConnector {
    * Sets the state refresh request handler
    */
   stateRefreshHandler(callback) {
-    this._stateRefreshHandler = callback;
+    this[stateRefreshHandler] = callback;
     return this
   }
 
@@ -77,7 +88,7 @@ module.exports = class SchemaConnector {
    * Sets the command request handler
    */
   commandHandler(callback) {
-    this._commandHandler = callback;
+    this[commandHandler] = callback;
     return this
   }
 
@@ -85,7 +96,7 @@ module.exports = class SchemaConnector {
    * Sets the grant callback access handler
    */
   callbackAccessHandler(callback) {
-    this._callbackAccessHandler = callback;
+    this[callbackAccessHandler] = callback;
     return this
   }
 
@@ -93,7 +104,7 @@ module.exports = class SchemaConnector {
    * Sets integration deleted handler
    */
   integrationDeletedHandler(callback) {
-    this._integrationDeletedHandler = callback;
+    this[integrationDeletedHandler] = callback;
     return this
   }
 
@@ -110,18 +121,13 @@ module.exports = class SchemaConnector {
    * @returns {SchemaConnector} SmartApp instance
    */
   callbackStore(value) {
-    this._contextStore = value;
-    return this
-  }
-
-  manufacturerName(value) {
-    this._manufacturerName = value;
+    this[contextStore] = value;
     return this
   }
 
   enableEventLogging(jsonSpace = null, enableEvents = true) {
-    this._enableEventLogging = enableEvents;
-    this._eventLoggingSpace = jsonSpace;
+    this[enableEventLogging] = enableEvents;
+    this[eventLoggingSpace] = jsonSpace;
     return this
   }
 
@@ -133,7 +139,7 @@ module.exports = class SchemaConnector {
    */
   async handleLambdaCallback(event, context) {
     try {
-      const response = await this._handleCallback(event);
+      const response = await this[handleCallback](event);
       if (response.isError()) {
         console.log("ERROR: %j", err);
         return context.fail(response)
@@ -156,7 +162,7 @@ module.exports = class SchemaConnector {
    */
   async handleHttpCallback(req, res) {
     try {
-      const response = await this._handleCallback(req.body);
+      const response = await this[handleCallback](req.body);
       if (response.isError()) {
         console.log("ERROR: %j", response);
         res.status(500).send(response)
@@ -173,16 +179,16 @@ module.exports = class SchemaConnector {
 
   async handleCallback(body) {
     try {
-      return await this._handleCallback(body)
+      return await this[handleCallback](body)
     }
     catch (err) {
       return err;
     }
   }
 
-  async _handleCallback(body) {
-    if (this._enableEventLogging) {
-      console.log(`REQUEST ${JSON.stringify(body, null, this._eventLoggingSpace)}`)
+  async [handleCallback](body) {
+    if (this[enableEventLogging]) {
+      console.log(`REQUEST ${JSON.stringify(body, null, this[eventLoggingSpace])}`)
     }
 
     if (!body.headers) {
@@ -195,27 +201,27 @@ module.exports = class SchemaConnector {
     switch (body.headers.interactionType) {
       case "discoveryRequest":
         response = new DiscoveryResponse(body.headers.requestId);
-        await this._discoveryHandler(body.authentication.token, response, body);
+        await this[discoveryHandler](body.authentication.token, response, body);
         break;
 
       case "commandRequest":
         response = new CommandResponse(body.headers.requestId);
-        await this._commandHandler(body.authentication.token, response, body.devices, body);
+        await this[commandHandler](body.authentication.token, response, body.devices, body);
         break;
 
       case "stateRefreshRequest":
         response = new StateRefreshResponse(body.headers.requestId);
-        await this._stateRefreshHandler(body.authentication.token, response, body);
+        await this[stateRefreshHandler](body.authentication.token, response, body);
         break;
 
       case "grantCallbackAccess":
         response = new STBase(body.headers.requestId);
-        if (this._callbackAccessHandler) {
-          if (body.callbackAuthentication.clientId === this._clientId ) {
+        if (this[callbackAccessHandler]) {
+          if (body.callbackAuthentication.clientId === this[clientId] ) {
 
             const tokenRequest = new AccessTokenRequest(
-              this._clientId,
-              this._clientSecret,
+              this[clientId],
+              this[clientSecret],
               body.headers.requestId
             );
 
@@ -224,7 +230,7 @@ module.exports = class SchemaConnector {
               body.callbackAuthentication.code
             );
 
-            await this._callbackAccessHandler(body.authentication.token, tokenResponse.callbackAuthentication, body.callbackUrls, body)
+            await this[callbackAccessHandler](body.authentication.token, tokenResponse.callbackAuthentication, body.callbackUrls, body)
           }
           else {
             response = new STBase().setError(`Client ID ${body.callbackAuthentication.clientId} is invalid`,
@@ -235,7 +241,7 @@ module.exports = class SchemaConnector {
 
       case "integrationDeleted":
         response = new STBase(body.headers.requestId);
-        await this._integrationDeletedHandler(body.authentication.token, body);
+        await this[integrationDeletedHandler](body.authentication.token, body);
         break;
 
       default:
@@ -246,8 +252,8 @@ module.exports = class SchemaConnector {
         break;
     }
 
-    if (this._enableEventLogging) {
-      console.log(`RESPONSE ${JSON.stringify(response, null, this._eventLoggingSpace)}`)
+    if (this[enableEventLogging]) {
+      console.log(`RESPONSE ${JSON.stringify(response, null, this[eventLoggingSpace])}`)
     }
 
     return response;

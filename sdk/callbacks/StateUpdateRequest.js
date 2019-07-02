@@ -1,6 +1,6 @@
 'use strict';
 
-const rp = require('request-promise-native');
+const fetch = require('node-fetch');
 const STBase = require("../STBase");
 const uuid = require('uuid/v4');
 const RefreshTokenRequest = require('./RefreshTokenRequest');
@@ -14,7 +14,7 @@ module.exports = class StateUpdateRequest extends STBase {
     this.clientSecret = clientSecret;
   }
 
-  updateState(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
+  updateState0(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
     return this[doUpdateState] (this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState).catch(async err => {
       if (refreshedCallback && err.statusCode === 401) {
         return new RefreshTokenRequest(this.clientId, this.clientSecret).getCallbackToken(
@@ -36,25 +36,46 @@ module.exports = class StateUpdateRequest extends STBase {
     })
   }
 
+  async updateState(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
+    try {
+      await this[doUpdateState](this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState)
+    }
+    catch (err) {
+      if (refreshedCallback && err.statusCode === 401) {
+        const refreshResponse = await new RefreshTokenRequest(this.clientId, this.clientSecret).getCallbackToken(
+          callbackUrls.oauthToken,
+          callbackAuth.refreshToken
+        );
+
+        refreshedCallback(refreshResponse.callbackAuthentication);
+
+        await this[doUpdateState](this, callbackUrls.stateCallback, refreshResponse.callbackAuthentication.accessToken, deviceState)
+      }
+      else {
+        throw err;
+      }
+    }
+  }
+
   [doUpdateState](self, callbackUrl, callbackAccessToken, deviceState) {
+    const body = {
+      headers: self.headers,
+      authentication: {
+        "tokenType": "Bearer",
+        "token": callbackAccessToken
+      },
+      deviceState: deviceState
+    };
+
     const options = {
-      url: callbackUrl,
       method: 'POST',
-      json: true,
       headers: {
         'Content-Type': 'application/json; charset=utf-8'
       },
-      body: {
-        headers: self.headers,
-        authentication: {
-          "tokenType": "Bearer",
-          "token": callbackAccessToken
-        },
-        deviceState: deviceState
-      }
+      body: JSON.stringify(body)
     };
 
-    return rp(options);
+    return fetch(callbackUrl, options);
   }
 
 };
