@@ -149,7 +149,7 @@ module.exports = class SchemaConnector {
       }
     }
     catch (err) {
-      console.log("ERROR: %j", err);
+      console.log("ERROR: %s", err.stack || err);
       return context.fail(err)
     }
   }
@@ -172,7 +172,7 @@ module.exports = class SchemaConnector {
       }
     }
     catch (err) {
-      console.log("ERROR: %j", err);
+      console.log("ERROR: %s", err.stack || err);
       res.status(500).send(err)
     }
   }
@@ -192,7 +192,7 @@ module.exports = class SchemaConnector {
     }
 
     if (!body.headers) {
-      return new STBase().setError(
+      return new STBase('missingHeader', 'unavailable').setError(
         `Invalid ST Schema request. No 'headers' field present.`,
         GlobalErrorTypes.BAD_REQUEST);
     }
@@ -215,7 +215,7 @@ module.exports = class SchemaConnector {
         break;
 
       case "grantCallbackAccess":
-        response = new STBase(body.headers.requestId);
+        response = new STBase(body.headers.interactionType, body.headers.requestId);
         if (this[callbackAccessHandler]) {
           if (body.callbackAuthentication.clientId === this[clientId] ) {
 
@@ -233,19 +233,19 @@ module.exports = class SchemaConnector {
             await this[callbackAccessHandler](body.authentication.token, tokenResponse.callbackAuthentication, body.callbackUrls, body)
           }
           else {
-            response = new STBase().setError(`Client ID ${body.callbackAuthentication.clientId} is invalid`,
-              GlobalErrorTypes.INVALID_CLIENT);
+            response = new STBase(body.headers.interactionType, body.headers.requestId)
+              .setError(`Client ID ${body.callbackAuthentication.clientId} is invalid`, GlobalErrorTypes.INVALID_CLIENT);
           }
         }
         break;
 
       case "integrationDeleted":
-        response = new STBase(body.headers.requestId);
+        response = new STBase(body.headers.interactionType, body.headers.requestId);
         await this[integrationDeletedHandler](body.authentication.token, body);
         break;
 
       default:
-        response = new STBase().setError(
+        response = new STBase(body.headers.interactionType, body.headers.requestId).setError(
           `Unsupported interactionType: '${body.headers.interactionType}'`,
           GlobalErrorTypes.INVALID_INTERACTION_TYPE);
 

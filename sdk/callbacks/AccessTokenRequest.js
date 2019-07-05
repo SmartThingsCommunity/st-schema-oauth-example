@@ -1,6 +1,7 @@
 'use strict';
 
 const fetch = require('node-fetch');
+const checkFetchStatus = require('../util/checkFetchStatus');
 const STBase = require("../STBase");
 const uuid = require('uuid/v4');
 
@@ -32,6 +33,7 @@ module.exports = class AccessTokenRequest extends STBase {
     };
 
     return fetch(url, options)
+      .then(checkFetchStatus)
       .then(res => res.json());
   }
 };

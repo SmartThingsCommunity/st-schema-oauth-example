@@ -1,6 +1,7 @@
 'use strict';
 
 const fetch = require('node-fetch');
+const checkFetchStatus = require('../util/checkFetchStatus');
 const STBase = require("../STBase");
 const uuid = require('uuid/v4');
 const RefreshTokenRequest = require('./RefreshTokenRequest');
@@ -14,52 +15,29 @@ module.exports = class StateUpdateRequest extends STBase {
     this.clientSecret = clientSecret;
   }
 
-  updateState0(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
-    return this[doUpdateState] (this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState).catch(async err => {
-      if (refreshedCallback && err.statusCode === 401) {
+  updateState(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
+
+    return this[doUpdateState](callbackUrls.stateCallback, callbackAuth.accessToken, deviceState).then(res => {
+      if (res.status === 401 && refreshedCallback) {
+
         return new RefreshTokenRequest(this.clientId, this.clientSecret).getCallbackToken(
           callbackUrls.oauthToken,
           callbackAuth.refreshToken
         ).then(refreshResponse => {
-          if (refreshedCallback) {
-            refreshedCallback(refreshResponse.callbackAuthentication)
-          }
-          return this[doUpdateState] (this, callbackUrls.stateCallback, refreshResponse.callbackAuthentication.accessToken, deviceState)
-        }).catch(err => {
-          console.log(`${err.message} refreshing callback access token`)
-        })
-      } else {
-        return new Promise((resolve, reject) => {
-          reject(err)
+          refreshedCallback(refreshResponse.callbackAuthentication);
+
+          return this[doUpdateState](callbackUrls.stateCallback, refreshResponse.callbackAuthentication.accessToken, deviceState)
+            .then(checkFetchStatus)
         })
       }
+
+      return checkFetchStatus(res)
     })
   }
 
-  async updateState(callbackUrls, callbackAuth, deviceState, refreshedCallback) {
-    try {
-      await this[doUpdateState](this, callbackUrls.stateCallback, callbackAuth.accessToken, deviceState)
-    }
-    catch (err) {
-      if (refreshedCallback && err.statusCode === 401) {
-        const refreshResponse = await new RefreshTokenRequest(this.clientId, this.clientSecret).getCallbackToken(
-          callbackUrls.oauthToken,
-          callbackAuth.refreshToken
-        );
-
-        refreshedCallback(refreshResponse.callbackAuthentication);
-
-        await this[doUpdateState](this, callbackUrls.stateCallback, refreshResponse.callbackAuthentication.accessToken, deviceState)
-      }
-      else {
-        throw err;
-      }
-    }
-  }
-
-  [doUpdateState](self, callbackUrl, callbackAccessToken, deviceState) {
+  [doUpdateState](callbackUrl, callbackAccessToken, deviceState) {
     const body = {
-      headers: self.headers,
+      headers: this.headers,
       authentication: {
         "tokenType": "Bearer",
         "token": callbackAccessToken
@@ -75,7 +53,7 @@ module.exports = class StateUpdateRequest extends STBase {
       body: JSON.stringify(body)
     };
 
-    return fetch(callbackUrl, options);
+    return fetch(callbackUrl, options)
   }
 
 };
