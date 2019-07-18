@@ -14,6 +14,11 @@ const Device = function (parent, device) {
       return new Property(this, this.externalId, key, states[key])
     });
 
+  this.stateMap = this.allStates.reduce(function(map, obj) {
+    map[obj.propertyName] = obj;
+    return map;
+  }, {});
+
   this.displayStates = ko.pureComputed(function() {
     return this.allStates.filter(it => { return it.propertyName !== 'online'})
   }, this);

@@ -127,10 +127,16 @@
   <h4 data-bind="text: displayName"></h4>
   <form onsubmit="return false;">
     <div data-bind="foreach: displayStates">
+
       <div class="form-group" data-bind="if: isEnumControl">
         <label data-bind="text: displayName"></label>
-        <select class="custom-select" data-bind="value: propertyValue, foreach: enumValues">
-          <option data-bind="text: label, attr: {value: value}"></option>
+        <select class="custom-select" data-bind="value: propertyValue, options: enumValues">
+        </select>
+      </div>
+
+      <div class="form-group" data-bind="if: isMultiControl">
+        <label data-bind="text: displayName"></label>
+        <select class="custom-select" data-bind="selectedOptions: propertyValue, options: multiValues" multiple="multiple">
         </select>
       </div>
 

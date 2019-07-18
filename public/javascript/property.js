@@ -14,7 +14,18 @@ const Property = function(parent, externalId, propertyName, propertyValue) {
   }, this);
 
   this.enumValues = ko.pureComputed(function() {
-    return this.controlMetadata.values.map(it => { return {value: it, label: capitalize(it)} })
+    if (this.controlMetadata.property && this.parent.stateMap[this.controlMetadata.property]) {
+      return this.parent.stateMap[this.controlMetadata.property].propertyValue()
+    }
+    return this.controlMetadata.values //.map(it => { return {value: it, label: capitalize(it)} })
+  }, this);
+
+  this.isMultiControl = ko.pureComputed(function() {
+    return this.controlMetadata.type === 'multi'
+  }, this);
+
+  this.multiValues = ko.pureComputed(function() {
+    return this.controlMetadata.values
   }, this);
 
   this.isSliderControl = ko.pureComputed(function() {

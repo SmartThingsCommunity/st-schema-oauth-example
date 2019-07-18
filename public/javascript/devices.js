@@ -64,10 +64,16 @@ function controlMetadata(externalAttribute) {
     return {type: 'slider', min: 50, max: 90}
   }
   else if (externalAttribute === 'thermostatMode') {
-    return {type: 'enum', values: ['off', 'heat', 'cool', 'auto']}
+    return {type: 'enum', property: 'supportedThermostatModes', values: ['off', 'heat', 'cool', 'auto']}
+  }
+  else if (externalAttribute === 'supportedThermostatModes') {
+    return {type: 'multi', values: ['off', 'heat', 'cool', 'auto', 'emergency heat', 'eco']}
   }
   else if (externalAttribute === 'thermostatFanMode') {
     return {type: 'enum', values: ['auto', 'on']}
+  }
+  else if (externalAttribute === 'supportedThermostatFanModes') {
+    return {type: 'multi', values: ['auto', 'on', 'circulate']}
   }
   else if (externalAttribute === 'thermostatOperatingState') {
     return {type: 'enum', values: ['idle', 'heating', 'cooling']}
