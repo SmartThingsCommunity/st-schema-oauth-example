@@ -37,14 +37,16 @@ const Device = function (parent, device) {
     if (value !== newValue) {
       tileActive(true);
 
+      const params = {
+        username: parent.username,
+        externalId: this.externalId,
+        states: {[mainAttribute]: newValue}
+      };
+
       $.ajax({
         type: "POST",
         url: '/devices/command',
-        data: JSON.stringify({
-          username: parent.username,
-          externalId: this.externalId,
-          states: {[mainAttribute]: newValue}
-        }),
+        data: JSON.stringify(params),
         success: function (data) {
           mainState(newValue);
           tileActive(false)

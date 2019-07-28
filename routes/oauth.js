@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const _ = require("underscore");
-const randomstring = require("randomstring");
 const db = require('../lib/db');
-const randtoken = require('rand-token');
+const Account = require('../lib/account');
 
 const clientId = process.env.CLIENT_ID || "dummy-client-id";
 const clientSecret = process.env.CLIENT_SECRET || "dummy-client-secret";
@@ -24,9 +23,6 @@ router.get('/login', authRequestHandler);
  * Processes OAuth logins
  */
 router.get("/login-as", async (req, res) => {
-  //console.log(`GET login-as HEAD: ${JSON.stringify(req.headers, null, 2)}`)
-  //console.log(`GET login-as BODY: ${JSON.stringify(req.body, null, 2)}`)
-
   let account = await db.getAccount(req.query.email);
   if ((account && !account.passwordMatches(req.query.password)) || (req.query.signin && !account)) {
 
@@ -35,38 +31,39 @@ router.get("/login-as", async (req, res) => {
       query: req.query,
       errorMessage: 'Invalid username and password'
     });
-    return;
-
   } else if (!account) {
-
     // New registration, need to create devices
     account = new Account().initialize(req.query.email, req.query.password)
-    await db.addAccount(account)
-  }
-
-  req.session.username = req.query.email;
-
-  const code = await db.addToken(req.query.email, req.query.expires_in);
-
-  if (req.session.redirect_uri) {
-    let redirectUri = req.session.redirect_uri;
-    let location = `${redirectUri}${redirectUri.includes('?') ? '&' : '?'}code=${code}`;
-    if (req.session.client_state) {
-      location += "&state=" + req.session.client_state
+    await db.addAccount(account);
+    req.session.oauth = true;
+    req.session.username = req.query.email;
+    res.redirect('/devices')
+  } else {
+    req.session.username = req.query.email;
+    req.session.expires_in = req.query.expires_in
+    const devices = await db.getDevices(req.session.username)
+    if (devices && devices.length > 0) {
+      authRedirect(req, res)
+    } else {
+      req.session.oauth = true;
+      res.redirect('/devices')
     }
-    res.writeHead(307, {"Location": location});
-    res.end()
   }
+
+
 });
 
+/**
+ * Does OAuth redirect at the end of new account creation from OAuth journey
+ */
+router.get("/redirect", async (req, res) => {
+  authRedirect(req, res)
+});
 
 /**
  * Processes redemption of OAuth codes and refresh tokens
  */
 router.post('/token', async (req, res) => {
-  //console.log(`GET login-as HEAD: ${JSON.stringify(req.headers, null, 2)}`)
-  //console.log(`GET login-as BODY: ${JSON.stringify(req.body, null, 2)}`)
-
   if (validateAccessTokenRequest(req, res)) {
     let code = null;
     let token = null;
@@ -146,6 +143,17 @@ function authRequestHandler(req, res) {
       errorMessage: ''
     })
   }
+}
+
+async function authRedirect(req, res) {
+  const code = await db.addToken(req.session.username, 84600);
+  let redirectUri = req.session.redirect_uri;
+  let location = `${redirectUri}${redirectUri.includes('?') ? '&' : '?'}code=${code}`;
+  if (req.session.client_state) {
+    location += "&state=" + req.session.client_state
+  }
+  res.writeHead(307, {"Location": location});
+  res.end()
 }
 
 module.exports = router;

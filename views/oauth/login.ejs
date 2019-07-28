@@ -27,10 +27,10 @@
           <input type="password" name="password" id="password" class="form-control"/>
         </div>
         <div class="form-group">
-          <label for="expires_in">Token expiration: </label>
+          <label for="expires_in">Access token expiration: </label>
           <select class="custom-select" name="expires_in" id="expires_in">
             <option value="2538000">30 Days</option>
-            <option value="84600" selected>1 Day</option>
+            <option value="84600" selected>24 Hours</option>
             <option value="3600">1 Hour</option>
             <option value="300">5 minutes</option>
             <option value="120">2 minutes</option>
@@ -45,6 +45,22 @@
     </div>
     <div class="col-lg-3"></div>
   </div>
+  <div class="row">
+    <div class="col-lg-3"></div>
+    <div class="col-lg-6">
+      <p>
+        This test application allows you to create virtual devices and import them into your SmartThings
+        location using ST Schema. Virtual devices look and work just a real devices do in the SmartThings app.
+        They respond to commands and generate events that can be used for automation triggers.
+      </p>
+      <p>
+        This application does not use your SmartThings credentials for login. You can create an account with
+        any username and password, just as you would in another IoT cloud app that you are integrating
+        to SmartThings with ST Schema. Passwords you enter here are encrypted with a salted hash before
+        storage, so that they aren't readable by anyone.
+      </p>
+    </div>
+    <div class="col-lg-3"></div>
 </div>
 </body>
 </html>

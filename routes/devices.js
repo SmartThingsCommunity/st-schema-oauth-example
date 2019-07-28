@@ -9,13 +9,14 @@ const mapping = require('../lib/mapping');
  */
 router.get('/', async (req, res) => {
   if (req.session.username) {
-    res.render('devices/index');
+    res.render('devices/index', {
+      redirectButton: req.session.oauth
+    });
   }
   else {
     res.redirect('/login')
   }
 });
-
 
 /**
  * Returns view model data for the devices page
@@ -24,10 +25,10 @@ router.get('/viewData', async (req, res) => {
   const devices = req.session.username ? (await db.getDevices(req.session.username)) : [];
   res.send({
     username: req.session.username,
-    devices: devices
+    devices: devices,
+    deviceTypes: mapping.deviceTypeNames()
   })
 });
-
 
 /**
  * Handles device commands from devices page
@@ -40,30 +41,26 @@ router.post('/command', async(req, res) => {
   res.send({})
 });
 
-
 /**
  * Handles device creation requests from devices page
  */
 router.post('/create', async(req, res) => {
-  await db.addDevice(req.session.username, req.body.deviceType, req.body.displayName, mapping.statesForDeviceType(req.body.deviceType));
-
-  res.redirect('/devices')
+  const deviceType = mapping.deviceTypeForName(req.body.deviceType);
+  const device = await db.addDevice(req.session.username, deviceType.type, req.body.displayName, deviceType.states);
+  res.send(device)
 });
-
 
 /**
  * Handles device deletion requests from devices page
  */
 router.post('/delete', async(req, res) => {
-  const deviceIds = Array.isArray(req.body.deviceIds) ? req.body.deviceIds : [req.body.deviceIds]
+  const deviceIds = req.body.deviceIds;
   const ops = deviceIds.map(id => {
     return db.deleteDevice(req.session.username, id)
   });
-
   await Promise.all(ops);
-  res.redirect('/devices')
+  res.send({count: deviceIds.length, items: deviceIds})
 });
-
 
 /**
  * Opens SSE stream to devices page

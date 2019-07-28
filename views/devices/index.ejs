@@ -47,8 +47,8 @@
       <div class="dropleft" id="dropdownMenu" style="float: right">
         <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">...</button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#" id="addDeviceButton">Add Device</a>
-          <a class="dropdown-item" href="#" id="deleteDevicesButton">Delete Devices</a>
+          <a class="dropdown-item" href="#" data-bind="click: showAddDeviceDialog">Add Device</a>
+          <a class="dropdown-item" href="#" data-bind="click: showDeleteDeviceDialog">Delete Devices</a>
           <a class="dropdown-item" href="/logout">Sign Out</a>
         </div>
       </div>
@@ -64,7 +64,7 @@
           <span class="deviceControl" data-bind="click: toggleState, class: tileState">
             <span class="deviceStatus" data-bind="text: mainState"></span>
           </span>
-          <a class="displayName" data-bind="text: displayName, attr: {id: externalId}"></a>
+          <a class="displayName" data-bind="click: showDetailDialog, text: displayName, attr: {id: externalId}"></a>
         </div>
       </div>
     </div>
@@ -72,29 +72,37 @@
 
   <div class="row" data-bind="ifnot: hasDevices">
     <div class="col-lg-12">
-      <a href="#" id="addDeviceLink">Create your first device</a>
+      <% if (redirectButton) { %>
+        <p>
+          Click the link below or the menu in the upper right of the page to add devices to this account.
+          After adding devices click <em>Done</em> to finish authenticating with SmartThings and import
+          those devices into your SmartThings account.
+        </p>
+      <% } %>
+      <p>
+        <a href="#" id="addDeviceLink" data-bind="click: showAddDeviceDialog">Create your first device</a>
+      </p>
     </div>
   </div>
+
+  <% if (redirectButton) { %>
+    <div class="row" data-bind="if: hasDevices">
+      <div class="col-lg-12">
+        <form action="/oauth/redirect">
+          <div class="form-group" id="oauth-buttons">
+            <input class="btn btn-secondary" type="submit" name="done" value="Done"/>
+          </div>
+        </form>
+      </div>
+    </div>
+  <% } %>
 </div>
 
 <div id="addDeviceDialog" title="Add Device" style="display: none;">
-  <form action="/devices/create" method="POST">
+  <form action="/devices/create" method="POST" data-bind="submit: createDevice">
     <div class="form-group">
       <label for="deviceType">Device Type: </label>
-      <select class="custom-select" name="deviceType" id="deviceType">
-        <option value="c2c-switch">Switch</option>
-        <option value="c2c-dimmer">Dimmer</option>
-        <option value="c2c-color-temperature-bulb">Tunable White Bulb</option>
-        <option value="c2c-rgb-color-bulb">Full Color Bulb</option>
-        <option value="c2c-rgbw-color-bulb">Full Color Tunable White Bulb</option>
-        <option value="c2c-motion-2">Motion Sensor</option>
-        <option value="d51dc1d9-d309-4200-ae45-452c91d41d7c">Motion & Temperature Sensor</option>
-        <option value="c2c-motion-5">Motion, Temp & Illuminance Sensor</option>
-        <option value="c2c-contact-3">Open/Close Sensor</option>
-        <option value="5e5b9338-4ac5-4b35-a0b3-fb97a6787fa5">Heater</option>
-        <option value="7a004f0c-db94-44d7-b206-c53866a9b745">Air Conditioner</option>
-        <option value="f37767e0-496d-4df8-9119-3f68c0646c59">HVAC Thermostat</option>
-        <option value="f3273146-84e3-4950-bb55-0ef1058c3858">Air Conditioner (staging)</option>
+      <select class="custom-select" name="deviceType" id="deviceType" data-bind="options: deviceTypes">
       </select>
     </div>
     <div class="form-group">
@@ -106,12 +114,12 @@
       <input type="text" class="form-control" value="300000000" name="expires_in" id="expires_in"/>
     </div>
     <input class="btn btn-primary" type="submit" name="create" value="Create"/>
-    <input id="cancelAddDeviceDialog" class="btn" type="button" value="Cancel"/>
+    <input id="cancelAddDeviceDialog" class="btn" type="button" value="Cancel" data-bind="click: closeAddDeviceDialog"/>
   </form>
 </div>
 
 <div id="deleteDevicesDialog" title="Delete Devices" style="display: none;">
-  <form action="/devices/delete" method="POST">
+  <form action="/devices/delete" method="POST" data-bind="submit: deleteDevice">
     <div class="form-group" data-bind="foreach: devices">
       <div class="deleteList">
         <input type="checkbox" name="deviceIds" data-bind="text: displayName, attr: {value: externalId}">
@@ -119,7 +127,7 @@
       </div>
     </div>
     <input class="btn btn-danger" type="submit" name="delete" value="Delete"/>
-    <input id="cancelDeleteDevicesDialog" class="btn" type="button" value="Cancel"/>
+    <input id="cancelDeleteDevicesDialog" class="btn" type="button" value="Cancel" data-bind="click: closeDeleteDeviceDialog"/>
   </form>
 </div>
 

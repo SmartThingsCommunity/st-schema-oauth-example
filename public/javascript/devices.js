@@ -1,3 +1,5 @@
+let viewModel;
+
 function capitalize(str) {
   return str.split().map(it => it.charAt(0).toUpperCase() + it.slice(1))
 }
@@ -40,6 +42,9 @@ function controlMetadata(externalAttribute) {
     return {type: 'enum', values: ['inactive', 'active']}
   }
   else if (externalAttribute === 'contact') {
+    return {type: 'enum', values: ['closed', 'open']}
+  }
+  else if (externalAttribute === 'valve') {
     return {type: 'enum', values: ['closed', 'open']}
   }
   else if (externalAttribute === 'switch') {
@@ -86,38 +91,39 @@ function controlMetadata(externalAttribute) {
   }
 }
 
+function showDetailDialog(device) {
+  viewModel.selectDevice(device.externalId);
+  $( "#deviceDetailDialog" ).dialog({width: 400, modal: true});
+}
+
+function showAddDeviceDialog() {
+  $( "#addDeviceDialog" ).dialog({width: 400, modal: true});
+}
+
+function closeAddDeviceDialog() {
+  $( "#addDeviceDialog" ).dialog('close');
+}
+
+function showDeleteDeviceDialog() {
+  $( "#deleteDevicesDialog" ).dialog({width: 400, modal: true});
+}
+
+function closeDeleteDeviceDialog() {
+  $( "#deleteDevicesDialog" ).dialog('close');
+}
+
 $( document ).ready(function() {
-
-  $('#addDeviceButton, #addDeviceLink').click(function() {
-    $( "#addDeviceDialog" ).dialog({width: 400, modal: true});
-    return false;
-  });
-
-  $('#cancelAddDeviceDialog').click(function() {
-    $( "#addDeviceDialog" ).dialog('close');
-    return false;
-  });
-
-  $('#deleteDevicesButton').click(function() {
-    $( "#deleteDevicesDialog" ).dialog({width: 400, modal: true});
-    return false;
-  });
-
-  $('#cancelDeleteDevicesDialog').click(function() {
-    $( "#deleteDevicesDialog" ).dialog('close');
-    return false;
-  });
 
   $.get('/devices/viewData', function(viewData) {
 
-    const viewModel = new ViewModel(viewData);
+    viewModel = new ViewModel(viewData);
 
     ko.applyBindings(viewModel);
 
     const eventSource = new EventSource('/devices/stream');
     eventSource.onmessage = function(e) {
       for (const device of JSON.parse(e.data)) {
-        const item = viewModel.devices.find(function(it) {
+        const item = viewModel.devices().find(function(it) {
           return it.externalId === device.externalDeviceId
         });
         if (item) {
@@ -129,15 +135,8 @@ $( document ).ready(function() {
       }
     };
 
-    $('.displayName').click(function() {
-      const externalId = $(this).attr('id');
-      viewModel.selectDevice(externalId);
-      $( "#deviceDetailDialog" ).dialog({width: 400, modal: true});
-      return false;
-    });
-
     eventSource.onerror = function(e) {
       console.log('EventSource failed %j', e);
     };
   })
-})
+});

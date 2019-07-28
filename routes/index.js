@@ -18,7 +18,6 @@ router.get('/', function(req, res, next) {
   });
 });
 
-
 /**
  * Page for testing OAuth redirects
  */
@@ -29,7 +28,6 @@ router.get('/redirect', function(req, res, next) {
   });
 });
 
-
 /**
  * Website login page
  */
@@ -39,7 +37,6 @@ router.get('/login', function(req, res, next) {
   });
 });
 
-
 /**
  * Website logout page
  */
@@ -48,7 +45,6 @@ router.get('/logout', function(req, res, next) {
     res.redirect('/login')
   })
 });
-
 
 /**
  * Processes website logins
@@ -65,6 +61,7 @@ router.post("/login-as", async (req, res) => {
     return;
 
   } else if (!account) {
+
     // New registration
     account = new Account().initialize(req.body.email, req.body.password)
     await db.addAccount(account)

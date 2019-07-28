@@ -120,3 +120,7 @@ form.login input.btn {
 #oauth-buttons {
     margin-top: 40px;
 }
+
+.btn-secondary {
+    width: 100%;
+}

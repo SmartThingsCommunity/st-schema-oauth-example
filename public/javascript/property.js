@@ -17,7 +17,7 @@ const Property = function(parent, externalId, propertyName, propertyValue) {
     if (this.controlMetadata.property && this.parent.stateMap[this.controlMetadata.property]) {
       return this.parent.stateMap[this.controlMetadata.property].propertyValue()
     }
-    return this.controlMetadata.values //.map(it => { return {value: it, label: capitalize(it)} })
+    return this.controlMetadata.values
   }, this);
 
   this.isMultiControl = ko.pureComputed(function() {
