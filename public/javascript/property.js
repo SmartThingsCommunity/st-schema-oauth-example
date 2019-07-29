@@ -2,11 +2,15 @@ const Property = function(parent, externalId, propertyName, propertyValue) {
   this.parent = parent;
   this.externalId = externalId;
   this.propertyName = propertyName;
-  this.controlMetadata = controlMetadata(propertyName)
+  this.controlMetadata = controlMetadata(propertyName);
   this.propertyValue = ko.observable(propertyValue);
 
   this.displayName = ko.pureComputed(function() {
     return capitalize(this.propertyName)
+  }, this);
+
+  this.typedValue = ko.pureComputed(function() {
+    return this.convertValue(this.propertyValue())
   }, this);
 
   this.isEnumControl = ko.pureComputed(function() {
@@ -48,16 +52,26 @@ const Property = function(parent, externalId, propertyName, propertyValue) {
     return this.controlMetadata.type === 'number'
   }, this);
 
+  this.convertValue = function(value) {
+    switch(this.controlMetadata.type) {
+      case 'slider':
+      case 'number':
+        return Number(value);
+    }
+    return value;
+  };
+
   this.propertyValue.subscribe(function(newValue) {
     const externalId = this.externalId;
     const propertyName = this.propertyName;
+    const propertyValue = this.convertValue(newValue);
     $.ajax({
       type: "POST",
       url: '/devices/command',
       data: JSON.stringify({
         username: parent.parent.username,
         externalId: externalId,
-        states: {[propertyName]: newValue}
+        states: {[propertyName]: propertyValue}
       }),
       success: function (data) {
 

@@ -151,7 +151,7 @@
       <div class="form-group" data-bind="if: isSliderControl">
         <label data-bind="text: displayName"></label>
         <span data-bind="text: propertyValue"></span>
-        <input type="range" class="form-control-range" data-bind="value: propertyValue, attr: {min: sliderMin, max: sliderMax}">
+        <input type="range" class="form-control-range" data-bind="attr: {min: sliderMin, max: sliderMax}, value: propertyValue">
       </div>
 
       <div class="form-group" data-bind="if: isNumberControl">
