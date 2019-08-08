@@ -86,6 +86,12 @@ function controlMetadata(externalAttribute) {
   else if (externalAttribute === 'temperature') {
     return {type: 'number'}
   }
+  else if (externalAttribute === 'outputModulation') {
+    return {type: 'enum', values: ['dc', '50hz', '60hz', '400Hz']}
+  }
+  else if (externalAttribute === 'outputVoltage') {
+    return {type: 'slider', min: 0, max: 240}
+  }
   else {
     return {type: 'number'}
   }
