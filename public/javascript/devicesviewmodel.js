@@ -22,12 +22,14 @@ const ViewModel = function (viewData) {
   };
 
   this.createDevice = function(formElement) {
+    const button = $("input[name='create']");
     const model = this;
     const data = {
       deviceType: $('#deviceType').val(),
       displayName: $('#displayName').val()
     };
 
+    button.addClass('processing');
     $.ajax({
       method: 'POST',
       url: '/devices/create',
@@ -37,13 +39,17 @@ const ViewModel = function (viewData) {
       success: function (device) {
         model.devices.push(new Device(model, device));
         $('#addDeviceDialog').dialog('close');
+        button.removeClass('processing');
       }
     });
   };
 
   this.deleteDevice = function(formElement) {
+    const button = $("input[name='delete']");
     const model = this;
     const deviceIds = [];
+
+    button.addClass('processing');
     $("input[name='deviceIds']:checked").each((index, elem) => {
       deviceIds.push($(elem).val());
     });
@@ -56,6 +62,7 @@ const ViewModel = function (viewData) {
       success: function(data) {
         model.devices.remove( function (item) { return data.items.includes(item.externalId); } );
         $('#deleteDevicesDialog').dialog('close');
+        button.removeClass('processing');
       }
    });
   };

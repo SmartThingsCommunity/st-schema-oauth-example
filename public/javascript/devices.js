@@ -138,5 +138,9 @@ $( document ).ready(function() {
     eventSource.onerror = function(e) {
       console.log('EventSource failed %j', e);
     };
-  })
+  });
+
+  $("input[name='done']").click(function(evt) {
+    $(this).addClass('processing')
+  });
 });
