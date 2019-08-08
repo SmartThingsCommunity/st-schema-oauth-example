@@ -1,7 +1,8 @@
 'use strict';
 
 /**
- * AWS Lambda handler configured to host ST Schema connector
+ * AWS Lambda handler configured to host ST Schema connector.
+ * Not currently used.
  */
 
 const connector = require('./lib/connector');

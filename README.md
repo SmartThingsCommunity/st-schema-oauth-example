@@ -30,28 +30,28 @@ sensors, and thermostats.
 
 ## Setup
 
-Create a `.env` in the root directory of the project containing the following information, changing values and filling in
-missing data (shown inside `<...>`) with your information
+Create the `.example_env` file to a `.env` in the root directory of the project containing the following information, changing values and filling in
+missing data (shown inside `{...}`) with your information
 ```$
-# Public base URL for accessing this server
-SERVER_URL=<publically accessible https url of your server>
+# Publically accessible URL for accessing this server. You can use ngrok to tunnel to your local server for development
+SERVER_URL=https://{{SOMETHING}}.ngrok.io
 
 # Client ID and secret of this OAuth app. These can be anything you want
-#
-CLIENT_ID="15245388-2660-4a3e-a1be-1e276dba1377"
-CLIENT_SECRET="90459b40-cc1a-4f4e-8a50-f4de19242345"
+CLIENT_ID="{{SOMETHING}}"
+CLIENT_SECRET="{{SOMETHING}}"
 
-# Client ID and secret of your ST Schema connector, from the SmartThings dev workspace 
-#
-ST_CLIENT_ID="<copy value from dev workspace>"
-ST_CLIENT_SECRET="<copy value from dev workspace>"
+# Client ID and secret of your ST Schema connector, from the SmartThings dev workspace
+ST_CLIENT_ID="{{CLIENT_ID}}"
+ST_CLIENT_SECRET="{{CLIENT_SECRET}}"
 
 # Credentials, region, and DynamoDB table names for this application
 AWS_REGION="us-east-1"
-AWS_ACCESS_KEY_ID="<your access key ID>"
-AWS_SECRET_ACCESS_KEY="<your secret key>"
-DYNAMODB_TABLE_NAME="sts_oauth_example"
-DYNAMODB_SESSION_TABLE_NAME="sts_oauth_example_sessions"
+AWS_ACCESS_KEY_ID="{{YOUR_ACCESS_KEY}}"
+AWS_SECRET_ACCESS_KEY="{{YOUR_SECRET_KEY}}"
+
+# DynamoDB tables. You don't have to change these. They will be created if they don't already exist when you start the app
+DYNAMODB_TABLE_NAME="sts_oauth_example_local"
+DYNAMODB_SESSION_TABLE_NAME="sts_oauth_example_local_sessions"
 ```
 
 ## Install NPM modules
@@ -63,7 +63,7 @@ npm install
 Run the following command in the root directory to start the server. If the DynamoDB tables specified in the `.env` file
 don't exist they will be created
 ```
-node index.js
+node server.js
 ```
 
 ## Creating an Account and Adding Devices

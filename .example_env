@@ -1,0 +1,33 @@
+# Copy this file to .env in the project directory and replace the fields inside of {{...}}
+
+# Server listening port
+PORT=3000
+
+# Publically accessible URL for accessing this server. You can use ngrok to tunnel to your local server for development
+SERVER_URL=https://{{SOMETHING}}.ngrok.io
+
+# Client ID and secret of this OAuth app. These can be anything you want
+CLIENT_ID="{{SOMETHING}}"
+CLIENT_SECRET="{{SOMETHING}}"
+
+# Permitted redirect URLs. You shouldn't have to change this
+PERMITTED_REDIRECT_URLS="https://c2c-us.smartthings.com/oauth/callback,https://c2c-eu.smartthings.com/oauth/callback,https://c2c-ap.smartthings.com/oauth/callback,https://c2c-globals.smartthingsgdev.com/oauth/callback,https://c2c-globald.smartthingsgdev.com/oauth/callback,https://c2c-uss.smartthingsgdev.com/oauth/callback,https://c2c-eus.smartthingsgdev.com/oauth/callback,https://c2c-usd.smartthingsgdev.com/oauth/callback"
+
+# Client ID and secret of your ST Schema connector, from the SmartThings dev workspace
+ST_CLIENT_ID="{{CLIENT_ID}}"
+ST_CLIENT_SECRET="{{CLIENT_SECRET}}"
+
+# Credentials, region, and DynamoDB table names for this application
+AWS_REGION="us-east-1"
+AWS_ACCESS_KEY_ID="{{YOUR_ACCESS_KEY}}"
+AWS_SECRET_ACCESS_KEY="{{YOUR_SECRET_KEY}}"
+
+# DynamoDB tables. You don't have to change these. They will be created if they don't already exist when you start the app
+DYNAMODB_TABLE_NAME="sts_oauth_example"
+DYNAMODB_SESSION_TABLE_NAME="sts_oauth_example_sessions"
+
+# Custom device profiles. You don't have to change these but you can.
+AC_THERMOSTAT="c9a88e65-5707-4c43-af59-80bdef27f8f0"
+HEATING_THERMOSTAT="c9a88e65-5707-4c43-af59-80bdef27f8f0"
+HVAC_THERMOSTAT="96406249-c14c-4d0e-8dd2-f62fbe381e78"
+

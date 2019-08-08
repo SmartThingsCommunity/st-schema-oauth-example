@@ -26,6 +26,9 @@ app.use(morgan("HTTP :method :url :res[location] :status :response-time ms"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/schema', schemaRouter);
+
 app.use(session({
   store: new DynamoDBStore({"table": {"name": dynamoSessionTableName}}),
   secret: "oauth example secret",
