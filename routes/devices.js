@@ -37,7 +37,7 @@ router.post('/command', async(req, res) => {
   const params = req.body;
   const externalStates = params.states;
   await db.updateDeviceState(params.username, params.externalId, externalStates);
-  deviceService.updateProactiveState(params.username, params.externalId, externalStates);
+  await deviceService.updateProactiveState(params.username, params.externalId, externalStates);
   res.send({})
 });
 
