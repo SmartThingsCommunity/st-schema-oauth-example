@@ -14,6 +14,21 @@ function toggleValue(externalAttribute, value) {
   else if (externalAttribute === 'switch') {
     return value === 'on' ? 'off' : 'on'
   }
+  else if (externalAttribute === 'windowShade') {
+    return value === 'open' ? 'closed' : 'open'
+  }
+  else if (externalAttribute === 'lock') {
+    return value === 'locked' ? 'unlocked' : 'locked'
+  }
+  else if (externalAttribute === 'smoke') {
+    return value === 'clear' ? 'detected' : 'clear'
+  }
+  else if (externalAttribute === 'carbonMonoxide') {
+    return value === 'clear' ? 'detected' : 'clear'
+  }
+  else if (externalAttribute === 'water') {
+    return value === 'dry' ? 'wet' : 'dry'
+  }
   else {
     return value
   }
@@ -32,13 +47,36 @@ function mainAttribute(externalStates) {
   else if (externalStates['temperature']) {
     return 'temperature'
   }
+  else if (externalStates['windowShade']) {
+    return 'windowShade'
+  }
+  else if (externalStates['power']) {
+    return 'power'
+  }
+  else if (externalStates['button']) {
+    return 'button'
+  }
+  else if (externalStates['lock']) {
+    return 'lock'
+  }
+  else if (externalStates['smoke']) {
+    return 'smoke'
+  }
+  else if (externalStates['water']) {
+    return 'water'
+  }
   else {
     return Object.keys(externalStates)[0]
   }
 }
 
-function controlMetadata(externalAttribute) {
-  if (externalAttribute === 'motion') {
+function controlMetadata(externalAttributeName) {
+  const segs = externalAttributeName.split('_');
+  const externalAttribute = segs[segs.length-1];
+  if (externalAttribute === 'online') {
+    return {type: 'bool'}
+  }
+  else if (externalAttribute === 'motion') {
     return {type: 'enum', values: ['inactive', 'active']}
   }
   else if (externalAttribute === 'contact') {
@@ -46,6 +84,15 @@ function controlMetadata(externalAttribute) {
   }
   else if (externalAttribute === 'valve') {
     return {type: 'enum', values: ['closed', 'open']}
+  }
+  else if (externalAttribute === 'lock') {
+    return {type: 'enum', values: ['locked', 'unlocked', 'unlocked with timeout', 'unknown']}
+  }
+  else if (externalAttribute === 'windowShade') {
+    return {type: 'enum', values: ['closed', 'open']}
+  }
+  else if (externalAttribute === 'supportedWindowShadeCommands') {
+    return {type: 'multi', values: ['open', 'close', 'pause']}
   }
   else if (externalAttribute === 'switch') {
     return {type: 'enum', values: ['off', 'on']}
@@ -63,10 +110,16 @@ function controlMetadata(externalAttribute) {
     return {type: 'slider', min: 0, max: 100}
   }
   else if (externalAttribute === 'heatingSetpoint') {
-    return {type: 'slider', min: 50, max: 90}
+    return {type: 'slider', min: 0, max: 100}
   }
   else if (externalAttribute === 'coolingSetpoint') {
-    return {type: 'slider', min: 50, max: 90}
+    return {type: 'slider', min: 0, max: 100}
+  }
+  else if (externalAttribute === 'airConditionerMode') {
+    return {type: 'enum', property: 'supportedAcModes', values: ['cool','fanOnly']}
+  }
+  else if (externalAttribute === 'supportedAcModes') {
+    return {type: 'multi', values: ['cool', 'dry', 'fanOnly', 'heat', 'coolClean', 'dryClean', 'heatClean', 'auto']}
   }
   else if (externalAttribute === 'thermostatMode') {
     return {type: 'enum', property: 'supportedThermostatModes', values: ['off', 'heat', 'cool', 'auto']}
@@ -75,7 +128,7 @@ function controlMetadata(externalAttribute) {
     return {type: 'multi', values: ['off', 'heat', 'cool', 'auto', 'emergency heat', 'eco']}
   }
   else if (externalAttribute === 'thermostatFanMode') {
-    return {type: 'enum', values: ['auto', 'on']}
+    return {type: 'enum', property: 'supportedThermostatFanModes', values: ['on', 'auto']}
   }
   else if (externalAttribute === 'supportedThermostatFanModes') {
     return {type: 'multi', values: ['auto', 'on', 'circulate']}
@@ -92,7 +145,49 @@ function controlMetadata(externalAttribute) {
   else if (externalAttribute === 'outputVoltage') {
     return {type: 'slider', min: 0, max: 240}
   }
-  else {
+  else if (externalAttribute === 'gasMeterPrecision') {
+    return {type: 'object'}
+  }
+  else if (externalAttribute === 'gasMeterTime') {
+    return {type: 'field'}
+  }
+  else if (externalAttribute === 'button') {
+    return {type: 'enum', property: 'supportedButtonValues', values: ['pushed', 'held', 'double']}
+  }
+  else if (externalAttribute === 'supportedButtonValues') {
+    return {type: 'multi', values: [
+        "pushed",
+        "held",
+        "double",
+        "pushed_2x",
+        "pushed_3x",
+        "pushed_4x",
+        "pushed_5x",
+        "pushed_6x",
+        "down",
+        "down_2x",
+        "down_3x",
+        "down_4x",
+        "down_5x",
+        "down_6x",
+        "down_hold",
+        "up",
+        "up_2x",
+        "up_3x",
+        "up_4x",
+        "up_5x",
+        "up_6x",
+        "up_hold"
+      ]}
+  } else if (externalAttribute === 'smoke') {
+    return {type: 'enum', values: ['clear', 'detected', 'tested']}
+  } else if (externalAttribute === 'carbonMonoxide') {
+    return {type: 'enum', values: ['clear', 'detected', 'tested']}
+  } else if (externalAttribute === 'water') {
+    return {type: 'enum', values: ['dry', 'wet']}
+  } else if (externalAttribute === 'temperatureScale') {
+    return {type: 'enum', values: ['F', 'C']}
+  } else {
     return {type: 'number'}
   }
 }
@@ -134,9 +229,7 @@ $( document ).ready(function() {
         });
         if (item) {
           const state = device.states.find(it => { return it.attribute === item.mainAttribute });
-          if (state) {
-            item.mainState(state.value)
-          }
+          item.updateStates(device.states)
         }
       }
     };

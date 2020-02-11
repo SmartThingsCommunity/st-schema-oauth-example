@@ -1,4 +1,5 @@
 const Device = function (parent, device) {
+  const self = this;
   const states = device.states;
   this.parent = parent;
   this.externalId = device.externalId;
@@ -8,7 +9,7 @@ const Device = function (parent, device) {
 
   this.allStates = Object.keys(states)
     .sort( (a, b) => {
-      return a === b ? 0 : (a > b) ? 1 : -1
+      return a === b ? 0 : (a === 'online' || (a > b && b !== 'online')) ? 1 : -1
     })
     .map(key => {
       return new Property(this, this.externalId, key, states[key])
@@ -20,10 +21,15 @@ const Device = function (parent, device) {
   }, {});
 
   this.displayStates = ko.pureComputed(function() {
-    return this.allStates.filter(it => { return it.propertyName !== 'online'})
+    return this.allStates; //.filter(it => { return it.propertyName !== 'online'})
   }, this);
 
+  this.offline = ko.pureComputed(function() {
+    return self.stateMap.online && !self.stateMap.online.typedValue();
+  });
+
   this.tileActive = ko.observable(false);
+
   this.tileState = ko.pureComputed(function() {
     return `${this.tileActive() ? 'processing ' : ''}${this.mainState()}`;
   }, this);
@@ -33,8 +39,8 @@ const Device = function (parent, device) {
     const mainAttribute = this.mainAttribute;
     const tileActive = this.tileActive;
     const value = mainState();
-    const newValue = toggleValue(this.mainAttribute, value);
-    if (value !== newValue) {
+    const newValue = mainAttribute === 'button' ? value : toggleValue(this.mainAttribute, value);
+    if (value !== newValue ||  mainAttribute === 'button') {
       tileActive(true);
 
       const params = {
@@ -54,6 +60,18 @@ const Device = function (parent, device) {
         dataType: 'json',
         contentType: "application/json; charset=utf-8"
       });
+    }
+  };
+
+  this.updateStates = function(states) {
+    for (const state of states) {
+      const item = self.stateMap[state.attribute]
+      if (item) {
+        item.internalValue(state.value)
+        if (state.attribute === self.mainAttribute) {
+          self.mainState(state.value)
+        }
+      }
     }
   }
 };

@@ -1,46 +1,72 @@
 body {
-  font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
+    font: 16px Roboto, "Lucida Grande", Arial, sans-serif;
 }
 
+li.connection {
+    font: 12px monospace;
+}
+div.handlerType {
+    font: 14px monospace;
+    margin-bottom: 12px;
+}
 a {
-  color: #00B7FF;
+    color: #00B7FF;
+}
+
+.infoMessage {
+    color: black;
 }
 
 .errorMessage {
-  color: darkred;
+    color: darkred;
 }
 
 div.container-fluid {
     max-width: 1024px;
 }
 .deviceTile {
-  border-width: 1px;
-  padding: 7px;
-  margin: 5px 0 10px 0;
-  background-color: #85d4ff;
-  height: 64px;
-  vertical-align: middle;
-  border-radius: 10px;
-  display: table;
-  width: 100%;
+    border-width: 1px;
+    padding: 7px;
+    margin: 5px 10px 10px 0;
+    background-color: #85d4ff;
+    height: 64px;
+    vertical-align: middle;
+    border-radius: 10px;
+    display: inline-block;
+    width: 300px;
+}
+
+.col-lg-12 {
+    padding-right: 0;
+}
+
+@media (max-width: 639px) {
+    .deviceTile {
+        width: 100%;
+    }
+    .col-lg-12 {
+        padding-right: 15px;
+    }
 }
 
 .displayName {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  margin: 0 88px 0 10px;
-  cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin: 0 88px 0 12px;
+    cursor: pointer;
 }
 
 .deviceControl {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  float: right;
-  width: 80px;
-  text-transform: uppercase;
-  border-radius: 10px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    float: right;
+    width: 80px;
+    text-transform: uppercase;
+    border-radius: 10px;
+    background-color: #32d0ff;
+    color: #ffffff;
 }
 
 .deviceDelete {
@@ -58,16 +84,10 @@ div.container-fluid {
     font-size: 14px;
 }
 
-.on, .active, .open {
-  background-color: #3291ff;
-  color: #ffffff;
+.on, .active, .open, .locked, .wet, .detected, .tested {
+    background-color: #3291ff;
+    color: #ffffff;
 }
-
-.off, .inactive, .closed {
-  background-color: #32d0ff;
-  color: #ffffff;
-}
-
 .processing {
     background-image: url("/images/spinner.gif");
     background-repeat: no-repeat;
@@ -75,12 +95,12 @@ div.container-fluid {
 }
 
 input.oauth {
-  width: 49%;
-  height: 50px;
+    width: 49%;
+    height: 50px;
 }
 
 .left {
-  float: left;
+    float: left;
 }
 
 .right {
@@ -88,8 +108,8 @@ input.oauth {
 }
 
 .footer {
-  text-align: center;
-  margin-top: 20px;
+    text-align: center;
+    margin-top: 20px;
 }
 
 h1 {
@@ -97,7 +117,7 @@ h1 {
 }
 
 h3 {
-    margin: 20px 0 20px 0px;
+    margin: 20px 0 20px 0;
 }
 
 #dropdownMenu {
@@ -108,11 +128,18 @@ h3 {
     background-color: #dddddd;
 }
 
-input.number-control {
+input.number-control, input.custom-control {
     width: 100%;
     display: inline-block;
     height: 2.25em;
+    padding: 1px 2px 1px 2px;
 }
+
+textarea.custom-control {
+    width: 100%;
+    display: inline-block;
+}
+
 form.login input.btn {
     width: 175px;
 }
@@ -123,4 +150,40 @@ form.login input.btn {
 
 .btn-secondary {
     width: 100%;
+}
+
+
+#deviceDetailDialog > h4 {
+    margin-right: 30px;
+}
+.handlerType {
+    margin-right: 30px;
+}
+#general-spinner {
+    float: right;
+    display: none;
+}
+.loading {
+    border: 4px solid #063043;
+    border-radius: 50%;
+    border-top: 4px solid #50e3c2;
+    width: 24px;
+    height: 24px;
+    -webkit-animation: spin 1s linear infinite; /* Safari */
+    animation: spin 1s linear infinite;
+}
+/* Safari */
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.offline-icon {
+    width: 12px;
+    height: auto;
+    float: left;
 }

@@ -33,7 +33,8 @@ router.get('/redirect', function(req, res, next) {
  */
 router.get('/login', function(req, res, next) {
   res.render('login', {
-    errorMessage: ''
+    errorMessage: '',
+    infoMessage: ''
   });
 });
 
@@ -51,25 +52,34 @@ router.get('/logout', function(req, res, next) {
  */
 router.post("/login-as", async (req, res) => {
 
-  let account = await db.getAccount(req.body.email)
-  if ((account && !account.passwordMatches(req.body.password)) || (req.body.signin && !account)) {
-
-    // Render error message for bad password or signing to non-existant account
+  if (!req.body.email) {
     res.render('login', {
-      errorMessage: 'Invalid username and password'
+      infoMessage: 'Enter email address and password and click "Create New Account"',
+      errorMessage: ''
     });
-    return;
-
-  } else if (!account) {
-
-    // New registration
-    account = new Account().initialize(req.body.email, req.body.password)
-    await db.addAccount(account)
   }
+  else {
+    let account = await db.getAccount(req.body.email)
+    if ((account && !account.passwordMatches(req.body.password)) || (req.body.signin && !account)) {
 
-  req.session.username = req.body.email
+      // Render error message for bad password or signing to non-existant account
+      res.render('login', {
+        errorMessage: 'Invalid username and password',
+        infoMessage: ''
+      });
+      return;
 
-  res.redirect('/devices')
+    } else if (!account) {
+
+      // New registration
+      account = new Account().initialize(req.body.email, req.body.password)
+      await db.addAccount(account)
+    }
+
+    req.session.username = req.body.email
+
+    res.redirect('/devices')
+  }
 });
 
 module.exports = router;

@@ -64,7 +64,7 @@ const ViewModel = function (viewData) {
         $('#deleteDevicesDialog').dialog('close');
         button.removeClass('processing');
       }
-   });
+    });
   };
 
   this.showDetailDialog = function(device) {
@@ -76,6 +76,6 @@ const ViewModel = function (viewData) {
     return a.displayName === b.displayName ? 0 : (a.displayName > b.displayName) ? 1 : -1
   });
   for (const device of list) {
-      this.devices.push(new Device(this, device))
+    this.devices.push(new Device(this, device))
   }
 };

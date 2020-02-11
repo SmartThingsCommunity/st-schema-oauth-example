@@ -63,7 +63,10 @@ console.log(`Login:             ${process.env.SERVER_URL}/login`);
 console.log(`Devices:           ${process.env.SERVER_URL}/devices`);
 console.log(`OAuth Test:        ${process.env.SERVER_URL}/oauth/login?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${process.env.SERVER_URL}/redirect&state=xxxyyyzzz`);
 
-console.log("\nST Connector configuration:");
+console.log("\nST Connector Hosting:");
+console.log(`Target URL:        ${process.env.SERVER_URL}/schema`);
+
+console.log("\nST Connector Device Cloud Connector:");
 console.log(`Target URL:        ${process.env.SERVER_URL}/schema`);
 console.log(`Client ID:         ${process.env.CLIENT_ID}`);
 console.log(`Client Secret:     ${process.env.CLIENT_SECRET}`);

@@ -23,34 +23,42 @@ router.get('/login', authRequestHandler);
  * Processes OAuth logins
  */
 router.get("/login-as", async (req, res) => {
-  let account = await db.getAccount(req.query.email);
-  if ((account && !account.passwordMatches(req.query.password)) || (req.query.signin && !account)) {
-
-    // Render error message for bad password or signing to non-existant account
+  const params = req.query
+  if (!params.email) {
     res.render('oauth/login', {
-      query: req.query,
-      errorMessage: 'Invalid username and password'
+      query: params,
+      infoMessage: 'Enter email address and password and click "Create New Account"',
+      errorMessage: ''
     });
-  } else if (!account) {
-    // New registration, need to create devices
-    account = new Account().initialize(req.query.email, req.query.password)
-    await db.addAccount(account);
-    req.session.oauth = true;
-    req.session.username = req.query.email;
-    res.redirect('/devices')
   } else {
-    req.session.username = req.query.email;
-    req.session.expires_in = req.query.expires_in
-    const devices = await db.getDevices(req.session.username)
-    if (devices && devices.length > 0) {
-      authRedirect(req, res)
-    } else {
+    let account = await db.getAccount(params.email);
+    if ((account && !account.passwordMatches(params.password)) || (params.signin && !account)) {
+      // Render error message for bad password or signing to non-existant account
+      res.render('oauth/login', {
+        query: params,
+        errorMessage: 'Invalid username and password',
+        infoMessage: ''
+      });
+    } else if (!account) {
+      // New registration, need to create devices
+      account = new Account().initialize(params.email, params.password)
+      await db.addAccount(account);
       req.session.oauth = true;
+      req.session.username = params.email;
+      req.session.expires_in = params.expires_in;
       res.redirect('/devices')
+    } else {
+      req.session.username = params.email;
+      req.session.expires_in = params.expires_in;
+      const devices = await db.getDevices(req.session.username);
+      if (devices && devices.length > 0) {
+        authRedirect(req, res)
+      } else {
+        req.session.oauth = true;
+        res.redirect('/devices')
+      }
     }
   }
-
-
 });
 
 /**
@@ -124,7 +132,8 @@ function validateAuthPageRequest(req, res) {
   if (errorMessages.length > 0) {
     res.status(401);
     res.render('oauth/invalidauth', {
-      errorMessages: errorMessages
+      errorMessages: errorMessages,
+      infoMessage: ''
     });
     return false
   }
@@ -140,7 +149,8 @@ function authRequestHandler(req, res) {
     }
     res.render('oauth/login', {
       query: req.query,
-      errorMessage: ''
+      errorMessage: '',
+      infoMessage: ''
     })
   }
 }
