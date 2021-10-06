@@ -23,6 +23,6 @@
     "randomstring": "^1.2.1",
     "st-schema": "^1.4.1",
     "underscore": "^1.13.1",
-    "uuid": "^3.4.0"
+    "uuid": "^8.3.2"
   }
 }
