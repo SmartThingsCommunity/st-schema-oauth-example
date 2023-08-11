@@ -6,7 +6,7 @@ const connector = require('../lib/connector');
  * ST Schema web-hook endpoint
  */
 router.post('/', async function (req, res) {
-  connector.handleHttpCallback(req, res)
+  await connector.handleHttpCallback(req, res)
 });
 
 module.exports = router;

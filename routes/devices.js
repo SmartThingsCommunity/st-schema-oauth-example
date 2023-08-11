@@ -62,7 +62,7 @@ router.post('/command', async(req, res) => {
  */
 router.post('/create', async(req, res) => {
   const deviceType = mapping.deviceTypeForName(req.body.deviceType);
-  const device = await db.addDevice(req.session.username, deviceType.type, req.body.displayName, deviceType.states);
+  const device = await db.addDevice(req.session.username, deviceType.type, req.body.displayName || deviceType.name, deviceType.states);
   const discoveryDevice = new DiscoveryDevice(device.externalId, device.displayName, device.handlerType)
     .manufacturerName('Example ST Schema Connector')
     .modelName(device.handlerType);
@@ -85,7 +85,10 @@ router.post('/delete', async(req, res) => {
 /**
  * Opens SSE stream to devices page
  */
-router.get('/stream', deviceService.sse.init);
+router.get('/stream', async(req, res, next) => {
+  res.flush = () => {};
+  next();
+}, deviceService.sse.init);
 
 module.exports = router;
 
@@ -109,3 +112,9 @@ function injectTemperatureScale(devices) {
   }
   return devices;
 }
+
+
+
+
+
+

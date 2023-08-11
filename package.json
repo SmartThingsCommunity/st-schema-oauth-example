@@ -6,22 +6,22 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "aws-sdk": "^2.1001.0",
+    "aws-sdk": "^2.1434.0",
     "crypto-js": "^3.3.0",
     "dateformat": "^3.0.3",
     "dotenv": "^10.0.0",
     "dynamodb-store": "^1.2.0",
-    "ejs": "^3.1.6",
+    "ejs": "^3.1.8",
     "express": "~4.17.1",
     "express-session": "^1.17.2",
     "express-sse": "^0.5.3",
     "http-errors": "~1.8.0",
     "knockout": "^3.5.1",
     "morgan": "~1.10.0",
-    "node-fetch": "^3.0.0",
+    "node-fetch": "^3.2.10",
     "rand-token": "^1.0.1",
     "randomstring": "^1.2.1",
-    "st-schema": "^1.4.1",
+    "st-schema": "^1.5.1",
     "underscore": "^1.13.1",
     "uuid": "^8.3.2"
   }
